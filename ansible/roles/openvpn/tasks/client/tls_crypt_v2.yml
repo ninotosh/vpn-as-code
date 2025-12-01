@@ -1,0 +1,7 @@
+- name: create tls crypt v2 client key
+  ansible.builtin.command:
+    cmd: >
+      openvpn
+      --tls-crypt-v2 "{{ openvpn_server_tls_crypt_v2 }}"
+      --genkey tls-crypt-v2-client "{{ tls_crypt_v2_remote }}"
+    creates: "{{ tls_crypt_v2_remote }}"

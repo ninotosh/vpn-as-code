@@ -1,0 +1,20 @@
+- name: touch fetch dest directory
+  delegate_to: localhost
+  become: no
+  ansible.builtin.file:
+    state: directory
+    path: "{{ fetch_dest_dir }}"
+    mode: u=rwx,g=,o=
+
+- name: include fetch tasks
+  ansible.builtin.include_tasks: fetch.yml
+  loop:
+    - { src: "{{ tls_crypt_v2_remote }}", dest: "{{ tls_crypt_v2_local }}" }
+    - { src: "{{ private_key_path }}", dest: "{{ key_local }}" }
+    - { src: "{{ certificate_path }}", dest: "{{ crt_local }}" }
+    - { src: "{{ openvpn_server_fingerprint }}", dest: "{{ server_fingerprint_local }}" }
+  loop_control:
+    loop_var: _fetch
+  vars:
+    src: "{{ _fetch.src }}"
+    dest: "{{ _fetch.dest }}"

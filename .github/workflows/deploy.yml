@@ -1,0 +1,115 @@
+name: deploy servers
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - config.yml
+env:
+  SSH_USER: ubuntu
+
+jobs:
+  terraform:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: terraform
+    outputs:
+      output: ${{ steps.output.outputs.stdout }}
+      server-count: ${{ steps.server-count.outputs.output }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - run: >
+          make
+          SSH_USER="${SSH_USER}"
+          SSH_PUBLIC_KEY="${{ vars.SSH_PUBLIC_KEY }}"
+          generated.ssh.auto.tfvars.json
+
+      - run: make generated.backend.hcl
+
+      - run: make generated.servers.auto.tfvars.json
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.14
+          cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
+          terraform_wrapper: false # for `make`
+
+      - run: terraform init -backend-config=generated.backend.hcl
+
+      - run: make generated.aws.tf
+
+      - run: make generated.gc.tf
+
+      - run: terraform apply -auto-approve
+      - run: terraform apply -auto-approve -refresh-only
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.14
+          cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
+
+      - id: output
+        run: terraform output -json
+
+      - id: server-count
+        run: |
+          output="`
+            echo '${{ steps.output.outputs.stdout }}' |
+            jq '(.aws.value | length) + (.gc.value | length)'
+          `"
+          echo "output=$output" >> $GITHUB_OUTPUT
+
+  ansible:
+    needs: terraform
+    if: needs.terraform.outputs.server-count != '0'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: ansible
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - run: |
+          private_key_path=`mktemp -p ${{ runner.temp }}`
+          cat << EOF > $private_key_path
+          ${{ secrets.SSH_PRIVATE_KEY }}
+          EOF
+          echo "SSH_PRIVATE_KEY_PATH=$private_key_path" >> $GITHUB_ENV
+
+      - run: |
+          cat << EOF > ${{ runner.temp }}/tfout.json
+          ${{ needs.terraform.outputs.output }}
+          EOF
+          echo "TERRAFORM_OUTPUT_PATH=${{ runner.temp }}/tfout.json" >> $GITHUB_ENV
+
+      - run: |
+          download_dir=`mktemp -d -p ${{ runner.temp }}`
+          echo "DOWNLOAD_DIR=$download_dir" >> $GITHUB_ENV
+
+      - run: ansible-galaxy collection install ansible.posix
+
+      - env:
+          CONFIG: ../config.yml
+          ANSIBLE_HOST_KEY_CHECKING: False
+        run: >
+          ansible-playbook
+          -i inventory.sh
+          -u $SSH_USER
+          -e ansible_ssh_private_key_file=${SSH_PRIVATE_KEY_PATH}
+          -e download_dir=${DOWNLOAD_DIR}
+          site.yml
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: ovpn_${{ github.run_number }}
+          path: ${{ env.DOWNLOAD_DIR }}
+          retention-days: 1
+          if-no-files-found: ignore

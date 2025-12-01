@@ -1,0 +1,7 @@
+- name: create ovpn file
+  delegate_to: localhost
+  become: no
+  ansible.builtin.template:
+    src: client.ovpn.j2
+    dest: "{{ fetch_dest_dir }}/{{ client_name }}.ovpn"
+    mode: u=rw,g=,o=

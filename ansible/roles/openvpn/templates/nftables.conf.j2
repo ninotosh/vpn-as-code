@@ -1,0 +1,43 @@
+flush ruleset
+table ip nat {
+	chain prerouting_filter {
+		type nat hook prerouting priority filter; policy accept;
+	}
+
+	chain postrouting_filter {
+		type nat hook postrouting priority filter; policy accept;
+		oif "{{ ansible_default_ipv4.interface }}" ip saddr {{ masquerade_ipv4_network_tcp }}/{{ masquerade_ipv4_prefix }} masquerade
+		oif "{{ ansible_default_ipv4.interface }}" ip saddr {{ masquerade_ipv4_network_udp }}/{{ masquerade_ipv4_prefix }} masquerade
+	}
+
+	chain prerouting_dstnat {
+		type nat hook prerouting priority dstnat; policy accept;
+		iif "{{ ansible_default_ipv4.interface }}" ip daddr {{ ansible_default_ipv4.address }} udp dport 53 redirect to :1194
+	}
+
+	chain postrouting_srcnat {
+		type nat hook postrouting priority srcnat; policy accept;
+	}
+}
+{% if external_ipv6_address %}
+table ip6 nat {
+	chain prerouting_filter {
+		type nat hook prerouting priority filter; policy accept;
+	}
+
+	chain postrouting_filter {
+		type nat hook postrouting priority filter; policy accept;
+		oif "{{ ansible_default_ipv6.interface }}" ip6 saddr {{ ipv6_ula_network_tcp }} masquerade
+		oif "{{ ansible_default_ipv6.interface }}" ip6 saddr {{ ipv6_ula_network_udp }} masquerade
+	}
+
+	chain prerouting_dstnat {
+		type nat hook prerouting priority dstnat; policy accept;
+		iif "{{ ansible_default_ipv6.interface }}" ip6 daddr {{ ansible_default_ipv6.address }} udp dport 53 redirect to :1194
+	}
+
+	chain postrouting_srcnat {
+		type nat hook postrouting priority srcnat; policy accept;
+	}
+}
+{% endif %}

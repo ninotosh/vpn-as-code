@@ -1,0 +1,31 @@
+- name: delete remote files
+  loop:
+    - "{{ tls_crypt_v2_remote }}"
+    - "{{ private_key_path }}"
+    - "{{ certificate_path }}"
+  loop_control:
+    loop_var: _remote_path
+  ansible.builtin.file:
+    path: "{{ _remote_path }}"
+    state: absent
+
+- name: delete local files
+  delegate_to: localhost
+  become: no
+  loop:
+    - "{{ tls_crypt_v2_local }}"
+    - "{{ key_local }}"
+    - "{{ crt_local }}"
+    - "{{ server_fingerprint_local }}"
+  loop_control:
+    loop_var: _local_path
+  ansible.builtin.file:
+    path: "{{ _local_path }}"
+    state: absent
+
+- name: mv client fingerprint
+  ansible.builtin.command:
+    cmd: >
+      mv "{{ fingerprint_path }}" "{{ openvpn_client_fingerprint_path }}"
+    creates: "{{ openvpn_client_fingerprint_path }}"
+    removes: "{{ fingerprint_path }}"

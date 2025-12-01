@@ -1,0 +1,13 @@
+- name: template {{ conf_name }}.conf
+  ansible.builtin.template:
+    src: "{{ conf_name }}.conf.j2"
+    dest: "{{ openvpn_server_dir }}/{{ conf_name }}.conf"
+    mode: u=rw,g=r,o=r
+  notify:
+  - restart systemd openvpn
+
+- name: start openvpn
+  ansible.builtin.service:
+    name: "openvpn-server@{{ conf_name }}"
+    state: started
+    enabled: yes

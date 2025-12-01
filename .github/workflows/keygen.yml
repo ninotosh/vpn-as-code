@@ -1,0 +1,26 @@
+name: create an SSH key pair
+on:
+  workflow_dispatch:
+
+jobs:
+  ssh-keygen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    env:
+      SSH_USER: ubuntu
+
+    steps:
+      - run: echo "SSH_PRIVATE_KEY_PATH=`mktemp -p $HOME`" >> $GITHUB_ENV
+      - run: echo "SSH_PUBLIC_KEY_PATH=${SSH_PRIVATE_KEY_PATH}.pub" >> $GITHUB_ENV
+
+      # "y" to overwrite the tmp file
+      - run: echo y | ssh-keygen -t ed25519 -f ${SSH_PRIVATE_KEY_PATH} -C $SSH_USER -N ""
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: ssh_key_pair_${{ github.run_number }}
+          path: |
+            ${{ env.SSH_PRIVATE_KEY_PATH }}
+            ${{ env.SSH_PUBLIC_KEY_PATH }}
+          retention-days: 1
+          if-no-files-found: error

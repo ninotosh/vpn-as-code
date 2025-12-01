@@ -1,0 +1,39 @@
+%{ for region in regions ~}
+provider "aws" {
+  alias      = "${region}"
+  region     = "${region}"
+}
+
+module "aws-${region}" {
+  source = "./modules/aws"
+  for_each = {
+    for k, v in var.servers :
+    k => v.aws.lightsail
+    if alltrue([
+      v.provider == "aws",
+      try(v.aws.compute, "") == "lightsail",
+      try(v.aws.region, "") == "${region}"
+    ])
+  }
+  providers = {
+    aws = aws.${region}
+  }
+  lightsail = {
+    name              = each.key
+    availability_zone = "${region}$${each.value.availability_zone}"
+    blueprint_id      = each.value.blueprint_id
+    bundle_id         = each.value.bundle_id
+  }
+  ssh_public_key = var.ssh_public_key
+}
+
+%{ endfor ~}
+%{ if length(regions) > 0 ~}
+output "aws" {
+  value = merge(
+%{ for region in regions ~}
+    module.aws-${region},
+%{ endfor ~}
+  )
+}
+%{ endif ~}

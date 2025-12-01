@@ -1,0 +1,51 @@
+---
+dependency:
+  name: galaxy
+  options:
+    force: False
+driver:
+  name: docker
+platforms:
+  - name: instance0
+    image: ubuntu:24.04
+    capabilities:
+      - NET_ADMIN
+    default_host_ip: ''
+    devices:
+      - /dev/net/tun
+    published_ports:
+      - '4430:443'
+      - '5300:53/udp'
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: 0
+      net.ipv6.conf.all.forwarding: 1
+  - name: instance1
+    image: ubuntu:24.04
+    capabilities:
+      - NET_ADMIN
+    default_host_ip: ''
+    devices:
+      - /dev/net/tun
+    published_ports:
+      - '4431:443'
+      - '5301:53/udp'
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: 0
+      net.ipv6.conf.all.forwarding: 1
+provisioner:
+  name: ansible
+  inventory:
+    links:
+      hosts: ../../../../inventory.sh
+  ansible_args:
+    - --extra-vars=download_dir=/tmp/download
+  env:
+    CONFIG: files/config.yml
+    TERRAFORM_OUTPUT_PATH: files/tfout.json
+    ANSIBLE_ROLES_PATH: ../../../ # https://github.com/ansible/molecule/issues/4391
+verifier:
+  name: ansible
+lint: |
+  set -e
+  yamllint .
+  ansible-lint -x meta-no-info

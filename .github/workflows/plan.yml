@@ -1,0 +1,54 @@
+name: show a plan
+on:
+  pull_request:
+    paths:
+      - config.yml
+
+jobs:
+  cue:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: validate config
+        uses: ./.github/actions/cue
+        with:
+          data-file: config.yml
+          schema-file: config.cue
+
+  plan:
+    needs: cue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - run: make generated.ssh.auto.tfvars.json
+
+      - run: make generated.backend.hcl
+
+      - run: make generated.servers.auto.tfvars.json
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.14
+          cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
+          terraform_wrapper: false # for `make`
+
+      - run: terraform init -backend-config=generated.backend.hcl
+
+      - run: make generated.aws.tf
+
+      - run: make generated.gc.tf
+
+      - name: terraform plan
+        run: |
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          terraform plan -no-color >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

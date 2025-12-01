@@ -1,0 +1,5 @@
+- name: import create tasks
+  ansible.builtin.import_tasks: create.yml
+
+- name: import fingerprint tasks
+  ansible.builtin.import_tasks: fingerprint.yml

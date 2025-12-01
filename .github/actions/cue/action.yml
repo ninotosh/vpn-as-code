@@ -1,0 +1,39 @@
+inputs:
+  data-file:
+    required: true
+  schema-file:
+    required: true
+  cue-version:
+    default: 0.15.0
+
+runs:
+  using: "composite"
+  steps:
+    - id: go-env
+      run: |
+        echo "GOCACHE=`go env GOCACHE`" >> $GITHUB_OUTPUT
+        echo "GOMODCACHE=`go env GOMODCACHE`" >> $GITHUB_OUTPUT
+      shell: bash
+
+    # TODO enable cache
+    # - uses: actions/cache@v4
+    #   id: cache
+    #   with:
+    #     path: |
+    #       ${{ steps.go-env.outputs.GOCACHE }}
+    #       ${{ steps.go-env.outputs.GOMODCACHE }}
+    #     key: cue-${{ inputs.cue-version }}
+
+    - run: echo "GOBIN=`go env GOPATH`/bin" >> $GITHUB_ENV
+      shell: bash
+    - run: echo "PATH=$GOBIN:$PATH" >> $GITHUB_ENV
+      shell: bash
+    - run: go install cuelang.org/go/cmd/cue@v${{ inputs.cue-version }}
+      shell: bash
+
+    - name: cue fmt
+      run: cue fmt --check ${{ inputs.schema-file }}
+      shell: bash
+
+    - run: cue vet --concrete ${{ inputs.schema-file }} ${{ inputs.data-file }}
+      shell: bash

@@ -1,0 +1,37 @@
+- name: check idempotence
+  vars:
+    openvpn_client_fingerprint_path: "{{ openvpn_client_fingerprint_path_format | format(client_name) }}"
+  ansible.builtin.stat:
+    path: "{{ openvpn_client_fingerprint_path }}"
+  register: openvpn_client_fingerprint_stat
+
+- name: run client tasks
+  when: not openvpn_client_fingerprint_stat.stat.exists
+  vars:
+    subject_name: "{{ client_name }}"
+    private_key_path: "/tmp/{{ client_name }}.key"
+    certificate_path: "/tmp/{{ client_name }}.crt"
+    fingerprint_path: "/tmp/{{ client_name }}-fp.txt"
+    fetch_dest_dir: "{{ download_dir }}/{{ inventory_hostname }}"
+    tls_crypt_v2_remote: "/tmp/{{ client_name }}-tls-crypt-v2.key"
+    tls_crypt_v2_local: "{{ fetch_dest_dir }}/{{ tls_crypt_v2_remote | basename }}"
+    key_local: "{{ fetch_dest_dir }}/{{ client_name }}.key"
+    crt_local: "{{ fetch_dest_dir }}/{{ client_name }}.crt"
+    server_fingerprint_local: "{{ fetch_dest_dir }}/server-fp.txt"
+    openvpn_client_fingerprint_path: "{{ openvpn_client_fingerprint_path_format | format(client_name) }}"
+  block:
+  - name: import certificate role
+    ansible.builtin.import_role:
+      name: certificate
+
+  - name: import tls_crypt_v2 tasks
+    ansible.builtin.import_tasks: tls_crypt_v2.yml
+
+  - name: import download tasks
+    ansible.builtin.import_tasks: download.yml
+
+  - name: import ovpn tasks
+    ansible.builtin.import_tasks: ovpn.yml
+
+  - name: import clean tasks
+    ansible.builtin.import_tasks: clean.yml

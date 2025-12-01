@@ -1,0 +1,84 @@
+name: check versions
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 4 */5 * *'
+
+jobs:
+  check:
+    if: ${{ endsWith(github.repository, '-dev') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    steps:
+      - name: Ubuntu
+        run: grep --line-regexp 'VERSION_ID="24.04"' /etc/os-release
+
+      - name: ansible
+        run: ansible --version | head -n 1 | grep --fixed-strings 'core 2.19.'
+
+      - name: jq
+        run: jq --version | grep --fixed-strings --line-regexp jq-1.7
+
+      - name: yq
+        run: yq --version | grep --fixed-strings v4.
+
+      - name: checkout
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with:
+          release: actions/checkout@v6
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: upload-artifact
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with:
+          release: actions/upload-artifact@v5
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: cache
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with:
+          release: actions/cache@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: conftest
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with:
+          release: open-policy-agent/conftest@v0.65
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: setup-terraform
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with:
+          release: hashicorp/setup-terraform@v3
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: terraform
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with:
+          release: hashicorp/terraform@v1.14
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: terraform-provider-aws
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with:
+          release: hashicorp/terraform-provider-aws@v6
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: terraform-provider-google
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with: 
+          release: hashicorp/terraform-provider-google@v7
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: cue
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with: 
+          release: cue-lang/cue@v0.15
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: openvpn
+        uses: ninotosh/check-github-repo-latest-version@v1
+        with:
+          release: OpenVPN/openvpn@v2.6
+          github_token: ${{ secrets.GITHUB_TOKEN }}

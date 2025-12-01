@@ -1,0 +1,18 @@
+- name: check {{ src }}
+  ansible.builtin.stat:
+    path: "{{ src }}"
+  register: fetch_src_stat
+
+- name: check {{ dest }}
+  delegate_to: localhost
+  become: no
+  ansible.builtin.stat:
+    path: "{{ dest }}"
+  register: fetch_dest_stat
+
+- name: fetch {{ src }}
+  when: fetch_src_stat.stat.exists and not fetch_dest_stat.stat.exists
+  ansible.builtin.fetch:
+    src: "{{ src }}"
+    dest: "{{ dest }}"
+    flat: yes

@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: import role
+      ansible.builtin.import_role:
+        name: certificate
+  vars:
+    subject_name: "my-subject"
+    private_key_path: "/tmp/{{ subject_name }}.key"
+    certificate_path: "/tmp/{{ subject_name }}.crt"
+    fingerprint_path: "/tmp/{{ subject_name }}-fingerprint.txt"

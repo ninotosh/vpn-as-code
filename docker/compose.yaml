@@ -1,0 +1,51 @@
+services:
+  terraform-bash:
+    build:
+      context: '.'
+      dockerfile: terraform.Dockerfile
+    entrypoint: /bin/bash
+    environment:
+      SSH_USER: ubuntu
+    volumes:
+      - ..:/mnt
+    working_dir: /mnt/terraform
+    stdin_open: true
+    tty: true
+  molecule-bash:
+    build:
+      context: '.'
+      dockerfile: molecule.Dockerfile
+    entrypoint: /bin/bash
+    environment:
+      SSH_USER: ubuntu
+      SSH_PRIVATE_KEY_PATH: /root/ssh_key
+      TERRAFORM_OUTPUT_PATH: /tmp/tfout.json
+      CONFIG: /mnt/config.yml
+      DOWNLOAD_DIR: /tmp/download
+      ANSIBLE_HOST_KEY_CHECKING: False
+    volumes:
+      - ..:/mnt
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /mnt/ansible
+    stdin_open: true
+    tty: true
+  cue-bash:
+    build:
+      context: '.'
+      dockerfile: cue.Dockerfile
+    entrypoint: /bin/bash
+    volumes:
+      - ..:/mnt
+    working_dir: /mnt
+    stdin_open: true
+    tty: true
+  conftest-bash:
+    build:
+      context: '.'
+      dockerfile: conftest.Dockerfile
+    entrypoint: /bin/bash
+    volumes:
+      - ../terraform:/mnt
+    working_dir: /mnt
+    stdin_open: true
+    tty: true

@@ -1,0 +1,23 @@
+- name: check {{ dest }}
+  ansible.builtin.stat:
+    path: "{{ dest }}"
+  register: move_dest_stat
+
+- name: check {{ src }}
+  ansible.builtin.stat:
+    path: "{{ src }}"
+  register: move_src_stat
+
+- name: copy {{ src }}
+  when: move_src_stat.stat.exists and not move_dest_stat.stat.exists
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ src }}"
+    dest: "{{ dest }}"
+    mode: "{{ mode }}"
+
+- name: delete {{ src }}
+  when: move_src_stat.stat.exists
+  ansible.builtin.file:
+    path: "{{ src }}"
+    state: absent

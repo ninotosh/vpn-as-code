@@ -1,0 +1,4 @@
+- name: create tls crypt v2 server key
+  ansible.builtin.command:
+    cmd: "openvpn --genkey tls-crypt-v2-server {{ openvpn_server_tls_crypt_v2 }}"
+    creates: "{{ openvpn_server_tls_crypt_v2 }}"

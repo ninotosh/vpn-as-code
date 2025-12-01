@@ -1,0 +1,91 @@
+name: integration tests
+on:
+  pull_request:
+env:
+  SSH_USER: ubuntu
+
+jobs:
+  cue:
+    if: ${{ endsWith(github.repository, '-dev') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/cue
+        with:
+          data-file: dev/config-empty.yml
+          schema-file: config.cue
+
+      - uses: ./.github/actions/cue
+        with:
+          data-file: dev/config-aws.yml
+          schema-file: config.cue
+
+      - uses: ./.github/actions/cue
+        with:
+          data-file: dev/config-gc.yml
+          schema-file: config.cue
+
+  empty:
+    needs:
+      - cue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      TARGET: ${{ github.job }}
+      CONFIG: ../dev/config-${{ github.job }}.yml
+      PLAN_RESOURCES_JSON_PATH: /tmp/${{ github.job }}_plan_resources.json
+      APPLY_OUTPUT_JSON_PATH: /tmp/${{ github.job }}_apply_output.json
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.14
+          cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
+          terraform_wrapper: false # for `make`
+
+      - run: >
+          make -f commands.mk
+          CONFIG="${CONFIG}"
+          SSH_USER="${SSH_USER}"
+          SSH_PUBLIC_KEY="${SSH_PUBLIC_KEY}"
+          init
+        env:
+          SSH_PUBLIC_KEY: '${{ vars.SSH_PUBLIC_KEY }}'
+
+      - run: |
+          terraform fmt -recursive -check
+          terraform validate
+
+      - run: >
+          make -f commands.mk
+          CONFIG="${CONFIG}"
+          HCP_TERRAFORM_TEAM_TOKEN="${HCP_TERRAFORM_TEAM_TOKEN}"
+          PLAN_RESOURCES_JSON_PATH="${PLAN_RESOURCES_JSON_PATH}"
+          plan-resources
+        env:
+          HCP_TERRAFORM_TEAM_TOKEN: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
+
+      - uses: ./.github/actions/cue
+        with:
+          data-file: ${{ env.PLAN_RESOURCES_JSON_PATH }}
+          schema-file: dev/${{ env.TARGET }}-plan.cue
+
+      - run: >
+          make -f commands.mk
+          CONFIG="${CONFIG}"
+          APPLY_OUTPUT_JSON_PATH=${APPLY_OUTPUT_JSON_PATH}
+          apply-output
+
+      - uses: ./.github/actions/cue
+        with:
+          data-file: ${{ env.APPLY_OUTPUT_JSON_PATH }}
+          schema-file: dev/${{ env.TARGET }}-apply.cue

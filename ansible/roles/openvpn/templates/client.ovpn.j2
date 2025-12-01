@@ -1,0 +1,42 @@
+peer-fingerprint {{ lookup('file', server_fingerprint_local) }}
+<cert>
+{{ lookup('file', crt_local) }}
+</cert>
+<key>
+{{ lookup('file', key_local) }}
+</key>
+<tls-crypt-v2>
+{{ lookup('file', tls_crypt_v2_local) }}
+</tls-crypt-v2>
+client
+dev tun
+nobind
+remote-cert-tls server
+cipher AES-256-GCM
+auth SHA256
+verb 3
+connect-retry 3
+
+{% if external_ipv6_address %}
+<connection>
+proto udp6
+remote {{ external_ipv6_address }} 53 udp
+</connection>
+{% endif %}
+
+<connection>
+proto udp4
+remote {{ ansible_host }} 53 udp
+</connection>
+
+{% if external_ipv6_address %}
+<connection>
+proto tcp6-client
+remote {{ external_ipv6_address }} 443 tcp
+</connection>
+{% endif %}
+
+<connection>
+proto tcp4-client
+remote {{ ansible_host }} 443 tcp
+</connection>

@@ -1,0 +1,35 @@
+terraform_cloud:
+  organization:
+    name: my_organization_2558
+    workspace: my_workspace
+servers:
+  instance0:
+    provider: aws
+    aws:
+      region: us-west-2
+      compute: lightsail
+      lightsail:
+        availability_zone: c
+        blueprint_id: ubuntu_24_04
+        bundle_id: nano_3_0
+    applications:
+      - openvpn
+    clients:
+      - client0
+      - client1
+  instance1:
+    provider: gc
+    gc:
+      compute: gce
+      gce:
+        region: us-west1
+        zone: c
+        machine_type: e2-micro
+        image:
+          project: ubuntu-os-cloud
+          family: ubuntu-2204-lts
+        enable_ipv6: false
+    applications:
+      - openvpn
+    clients:
+      - client1

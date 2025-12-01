@@ -1,0 +1,40 @@
+- name: install nftables
+  ansible.builtin.package:
+    state: present
+    name:
+      - nftables
+
+- name: template nftables.conf
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: "/etc/nftables.conf"
+    mode: u=rw,g=r,o=r
+
+- name: register current nft ruleset
+  ansible.builtin.command:
+    cmd: nft list ruleset
+  register: nft_list_ruleset_before_result
+  changed_when: False
+
+- name: clear nft ruleset
+  ansible.builtin.command:
+    cmd: nft flush ruleset
+  changed_when: False
+
+- name: load nft ruleset
+  ansible.builtin.command:
+    cmd: nft -f /etc/nftables.conf
+  changed_when: False
+
+- name: detect nft ruleset change
+  ansible.builtin.command:
+    cmd: nft list ruleset
+  register: nft_list_ruleset_after_result
+  changed_when: nft_list_ruleset_before_result.stdout != nft_list_ruleset_after_result.stdout
+
+- name: enable nftables service
+  when: ansible_facts.service_mgr == 'systemd'
+  ansible.builtin.service:
+    name: nftables.service
+    enabled: yes
+    state: started

@@ -1,0 +1,12 @@
+- name: take a fingerprint
+  ansible.builtin.command: openssl x509 -fingerprint -noout -sha256 -in "{{ certificate_path }}"
+  register: fingerprint_result
+  changed_when: False
+
+- name: template fingerprint
+  vars:
+    fingerprint: "{{ fingerprint_result.stdout.split('=')[1] }}"
+  ansible.builtin.template:
+    src: fingerprint.txt.j2
+    dest: "{{ fingerprint_path }}"
+    mode: u=rw,g=r,o=r

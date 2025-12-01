@@ -1,0 +1,27 @@
+- name: create a private key and a self-signed certificate
+  vars:
+    certificate_pem: "/tmp/{{ subject_name }}-crt.pem"
+  block:
+  - name: create a private key
+    ansible.builtin.command:
+      cmd: openssl genpkey -out "{{ private_key_path }}" -algorithm ED25519
+      creates: "{{ private_key_path }}"
+
+  - name: create a self-signed certificate
+    ansible.builtin.command:
+      # -nodes is deprecated by -noenc in OpenSSL 3.0, but still available
+      cmd: >
+        openssl req -x509
+        -key "{{ private_key_path }}" -out "{{ certificate_pem }}"
+        -subj /CN"{{ '=' + subject_name }}" -nodes -days "{{ valid_days }}" -sha256
+      creates: "{{ certificate_path }}"
+
+  - name: decode certificate
+    ansible.builtin.command:
+      cmd: openssl x509 -text -in "{{ certificate_pem }}" -out "{{ certificate_path }}"
+      creates: "{{ certificate_path }}"
+
+  - name: delete {{ certificate_pem }}
+    ansible.builtin.file:
+      path: "{{ certificate_pem }}"
+      state: absent

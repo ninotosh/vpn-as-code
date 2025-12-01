@@ -1,0 +1,29 @@
+tls-server
+dev tun
+topology subnet
+<peer-fingerprint>
+{{ fingerprints_result.stdout }}
+</peer-fingerprint>
+cert {{ openvpn_server_crt }}
+key {{ openvpn_server_key }}
+{% if external_ipv6_address %}
+proto tcp6-server
+server-ipv6 {{ ipv6_ula_network_tcp }}
+push "redirect-gateway ipv6"
+push "dns server 0 address 2606:4700:4700::1111 2001:4860:4860::8888"
+{% else %}
+proto tcp-server
+{% endif %}
+push "dns server 0 address 1.1.1.1 8.8.8.8"
+tcp-nodelay
+port 443
+server {{ masquerade_ipv4_network_tcp }} {{ masquerade_ipv4_netmask }}
+push "redirect-gateway def1 bypass-dhcp"
+keepalive 10 120
+dh none
+tls-crypt-v2 {{ openvpn_server_tls_crypt_v2 }}
+cipher AES-256-GCM
+auth SHA256
+status /var/log/openvpn/status-tcp.log
+status-version 2
+verb 3

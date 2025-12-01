@@ -1,0 +1,13 @@
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: wait for connection
+      ansible.builtin.wait_for_connection:
+        timeout: 240
+    - name: gather facts
+      ansible.builtin.setup:
+    - name: import openvpn role
+      when: '"openvpn" in applications'
+      become: yes
+      ansible.builtin.import_role:
+        name: openvpn

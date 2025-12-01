@@ -1,0 +1,66 @@
+terraform_cloud:
+  organization:
+    name: my_organization_2558
+    workspace: my_workspace
+google_cloud:
+  project_id: my-project-147248
+servers:
+  blue:
+    provider: aws
+    aws:
+      region: ap-northeast-1
+      compute: lightsail
+      lightsail:
+        availability_zone: a
+        blueprint_id: ubuntu_24_04
+        bundle_id: nano_3_0
+    applications:
+      - openvpn
+    clients:
+      - client0
+  yellow:
+    provider: aws
+    aws:
+      region: us-west-2
+      compute: lightsail
+      lightsail:
+        availability_zone: b
+        blueprint_id: ubuntu_24_04
+        bundle_id: nano_ipv6_3_0
+    applications:
+      - openvpn
+    clients:
+      - client0
+      - client1
+  green:
+    provider: gc
+    gc:
+      compute: gce
+      gce:
+        region: us-west1
+        zone: b
+        machine_type: e2-micro
+        image:
+          project: ubuntu-os-cloud
+          family: ubuntu-2404-lts-amd64
+        enable_ipv6: false
+    applications:
+      - openvpn
+    clients:
+      - client1
+  red:
+    provider: gc
+    gc:
+      compute: gce
+      gce:
+        region: us-central1
+        zone: a
+        machine_type: e2-micro
+        image:
+          project: ubuntu-os-cloud
+          family: ubuntu-2404-lts-amd64
+        enable_ipv6: true
+    applications:
+      - openvpn
+    clients:
+      - client0

@@ -1,0 +1,14 @@
+---
+- name: Verify
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: check files
+      loop:
+        - { path: "/tmp/download/instance0/client0.ovpn", mode: "0600" }
+        - { path: "/tmp/download/instance0/client1.ovpn", mode: "0600" }
+        - { path: "/tmp/download/instance1/client1.ovpn", mode: "0600" }
+      ansible.builtin.include_tasks: tasks/assert_stat.yml
+      vars:
+        path: "{{ item.path }}"
+        mode: "{{ item.mode }}"

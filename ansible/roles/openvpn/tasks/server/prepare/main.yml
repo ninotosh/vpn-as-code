@@ -1,0 +1,28 @@
+- name: import system tasks
+  ansible.builtin.import_tasks: system.yml
+
+- name: update package cache
+  action: "{{ ansible_pkg_mgr }} update_cache=yes"
+  changed_when: False
+
+- name: import ipv6_ula tasks
+  when: external_ipv6_address | default("", true) | length > 0
+  ansible.builtin.import_tasks: ipv6_ula.yml
+
+- name: import nftables tasks
+  ansible.builtin.import_tasks: nftables.yml
+
+- name: import install tasks
+  ansible.builtin.import_tasks: install.yml
+
+- name: import tls_crypt_v2 tasks
+  ansible.builtin.import_tasks: tls_crypt_v2.yml
+
+- name: import certificate role
+  ansible.builtin.import_role:
+    name: certificate
+  vars:
+    subject_name: "{{ inventory_hostname }}"
+    private_key_path: "{{ openvpn_server_key }}"
+    certificate_path: "{{ openvpn_server_crt }}"
+    fingerprint_path: "{{ openvpn_server_fingerprint }}"

@@ -1,0 +1,9 @@
+- name: stat {{ path }}
+  ansible.builtin.stat:
+    path: "{{ path }}"
+  register: result
+- name: assert {{ path }}
+  ansible.builtin.assert:
+    that:
+      - result.stat.exists
+      - result.stat.mode == mode

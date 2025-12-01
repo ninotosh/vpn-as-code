@@ -1,0 +1,13 @@
+- name: import server prepare tasks
+  ansible.builtin.import_tasks: server/prepare/main.yml
+
+- name: include client tasks
+  ansible.builtin.include_tasks: client/main.yml
+  loop: "{{ clients }}"
+  loop_control:
+    loop_var: _client
+  vars:
+    client_name: "{{ _client }}"
+
+- name: import server start tasks
+  ansible.builtin.import_tasks: server/start/main.yml

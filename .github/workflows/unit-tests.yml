@@ -1,0 +1,58 @@
+name: unit tests
+on:
+  pull_request:
+
+jobs:
+  cue:
+    if: ${{ github.event.repository.is_template || endsWith(github.repository, '-dev') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: validate example
+        uses: ./.github/actions/cue
+        with:
+          data-file: config-example.yml
+          schema-file: config.cue
+
+  conftest:
+    if: ${{ github.event.repository.is_template || endsWith(github.repository, '-dev') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      CONFTEST_VERSION: 0.65.0
+      CONFTEST_DOWNLOAD_DIR: ~/conftest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: ${{ env.CONFTEST_DOWNLOAD_DIR }}
+          key: conftest-${{ env.CONFTEST_VERSION }}
+
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ env.CONFTEST_DOWNLOAD_DIR }}
+          cd ${{ env.CONFTEST_DOWNLOAD_DIR }}
+          curl -L -o conftest.tar.gz https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_x86_64.tar.gz
+          tar zxf conftest.tar.gz
+
+      - run: echo "PATH=${{ env.CONFTEST_DOWNLOAD_DIR }}:$PATH" >> $GITHUB_ENV
+
+      - run: conftest fmt --check policy
+
+      - run: conftest test -p policy/modules/aws -n main modules/aws/main.tf
+      - run: conftest test -p policy/modules/aws -n outputs modules/aws/outputs.tf
+      - run: conftest test -p policy/modules/aws -n variables modules/aws/variables.tf
+      - run: conftest verify -p policy/modules/aws
+
+      - run: conftest test -p policy/modules/google -n main modules/google/main.tf
+      - run: conftest test -p policy/modules/google -n outputs modules/google/outputs.tf
+      - run: conftest test -p policy/modules/google -n variables modules/google/variables.tf
+      - run: conftest verify -p policy/modules/google

@@ -1,0 +1,13 @@
+---
+dependency:
+  name: galaxy
+  options:
+    force: False
+driver:
+  name: docker
+platforms:
+  - name: instance
+    image: ubuntu:24.04
+provisioner:
+  env:
+    ANSIBLE_ROLES_PATH: ../../../ # https://github.com/ansible/molecule/issues/4391
