@@ -15,7 +15,7 @@ jobs:
         run: grep --line-regexp 'VERSION_ID="24.04"' /etc/os-release
 
       - name: ansible
-        run: ansible --version | head -n 1 | grep --fixed-strings 'core 2.19.'
+        run: ansible --version | head -n 1 | grep --fixed-strings 'core 2.20.'
 
       - name: jq
         run: jq --version | grep --fixed-strings --line-regexp jq-1.7
