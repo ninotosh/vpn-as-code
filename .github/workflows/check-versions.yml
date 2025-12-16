@@ -32,7 +32,7 @@ jobs:
       - name: upload-artifact
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: actions/upload-artifact@v5
+          release: actions/upload-artifact@v6
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: cache

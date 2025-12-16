@@ -107,7 +107,7 @@ jobs:
           -e download_dir=${DOWNLOAD_DIR}
           site.yml
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: ovpn_${{ github.run_number }}
           path: ${{ env.DOWNLOAD_DIR }}
