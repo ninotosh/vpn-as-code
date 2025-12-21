@@ -38,7 +38,7 @@ jobs:
       - name: cache
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: actions/cache@v4
+          release: actions/cache@v5
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: conftest

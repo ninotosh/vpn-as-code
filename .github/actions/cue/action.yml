@@ -15,14 +15,13 @@ runs:
         echo "GOMODCACHE=`go env GOMODCACHE`" >> $GITHUB_OUTPUT
       shell: bash
 
-    # TODO enable cache
-    # - uses: actions/cache@v4
-    #   id: cache
-    #   with:
-    #     path: |
-    #       ${{ steps.go-env.outputs.GOCACHE }}
-    #       ${{ steps.go-env.outputs.GOMODCACHE }}
-    #     key: cue-${{ inputs.cue-version }}
+    - uses: actions/cache@v5
+      id: cache
+      with:
+        path: |
+          ${{ steps.go-env.outputs.GOCACHE }}
+          ${{ steps.go-env.outputs.GOMODCACHE }}
+        key: cue-${{ inputs.cue-version }}
 
     - run: echo "GOBIN=`go env GOPATH`/bin" >> $GITHUB_ENV
       shell: bash
