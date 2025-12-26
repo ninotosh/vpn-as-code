@@ -44,7 +44,7 @@ jobs:
       - name: conftest
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: open-policy-agent/conftest@v0.65
+          release: open-policy-agent/conftest@v0.66
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: setup-terraform
