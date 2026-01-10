@@ -15,7 +15,7 @@ jobs:
         run: grep --line-regexp 'VERSION_ID="24.04"' /etc/os-release
 
       - name: ansible
-        run: ansible --version | head -n 1 | grep --fixed-strings 'core 2.19.'
+        run: ansible --version | head -n 1 | grep --fixed-strings 'core 2.20.'
 
       - name: jq
         run: jq --version | grep --fixed-strings --line-regexp jq-1.7
@@ -32,19 +32,19 @@ jobs:
       - name: upload-artifact
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: actions/upload-artifact@v5
+          release: actions/upload-artifact@v6
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: cache
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: actions/cache@v4
+          release: actions/cache@v5
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: conftest
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: open-policy-agent/conftest@v0.65
+          release: open-policy-agent/conftest@v0.66
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: setup-terraform

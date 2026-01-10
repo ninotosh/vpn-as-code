@@ -16,7 +16,7 @@ jobs:
       # "y" to overwrite the tmp file
       - run: echo y | ssh-keygen -t ed25519 -f ${SSH_PRIVATE_KEY_PATH} -C $SSH_USER -N ""
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: ssh_key_pair_${{ github.run_number }}
           path: |
