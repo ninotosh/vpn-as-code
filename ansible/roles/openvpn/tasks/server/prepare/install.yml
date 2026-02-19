@@ -15,7 +15,7 @@
 
 - name: install openvpn
   vars:
-    openvpn_release: 2.6
+    openvpn_release: 2.7
     _arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
     architecture: "{{ 'amd64' if _arch == 'x86_64' else _arch }}"
   block:

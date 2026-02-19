@@ -80,5 +80,5 @@ jobs:
       - name: openvpn
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: OpenVPN/openvpn@v2.6
+          release: OpenVPN/openvpn@v2.7
           github_token: ${{ secrets.GITHUB_TOKEN }}
