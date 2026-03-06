@@ -74,7 +74,7 @@ jobs:
       - name: cue
         uses: ninotosh/check-github-repo-latest-version@v1
         with: 
-          release: cue-lang/cue@v0.15
+          release: cue-lang/cue@v0.16
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: openvpn
