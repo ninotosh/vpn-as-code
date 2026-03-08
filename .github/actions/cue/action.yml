@@ -4,7 +4,7 @@ inputs:
   schema-file:
     required: true
   cue-version:
-    default: 0.15.0
+    default: 0.16.0
 
 runs:
   using: "composite"

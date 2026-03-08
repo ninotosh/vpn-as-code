@@ -1,5 +1,5 @@
 FROM golang:1.25-bookworm
-ARG CUE_VERSION=0.15.0
+ARG CUE_VERSION=0.16.0
 
 RUN apt update && \
     apt install -y --no-install-recommends bash-completion && \

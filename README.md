@@ -86,11 +86,11 @@ sequenceDiagram
 
 - accounts
   - [GitHub](https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github)
-  - [HCP Terraform](https://developer.hashicorp.com/terraform/tutorials/cloud-get-started/cloud-sign-up)
+  - [HashiCorp Cloud Platform](https://developer.hashicorp.com/hcp/docs/hcp/create-account) or [HCP Terraform](https://developer.hashicorp.com/terraform/tutorials/cloud-get-started/cloud-sign-up)
   - one or more of
     - [AWS](https://aws.amazon.com/resources/create-account/)
     - [Google](https://support.google.com/accounts/answer/27441) for Google Cloud
-- VPN client application
+- VPN client application on each client
 
 # steps
 
