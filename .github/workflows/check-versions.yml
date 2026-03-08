@@ -32,7 +32,7 @@ jobs:
       - name: upload-artifact
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: actions/upload-artifact@v6
+          release: actions/upload-artifact@v7
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: cache
@@ -50,7 +50,7 @@ jobs:
       - name: setup-terraform
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
-          release: hashicorp/setup-terraform@v3
+          release: hashicorp/setup-terraform@v4
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: terraform

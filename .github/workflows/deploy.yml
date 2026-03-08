@@ -33,7 +33,7 @@ jobs:
       - run: make generated.servers.auto.tfvars.json
 
       - name: set up terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ~1.14
           cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
@@ -49,7 +49,7 @@ jobs:
       - run: terraform apply -auto-approve -refresh-only
 
       - name: set up terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ~1.14
           cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
@@ -107,7 +107,7 @@ jobs:
           -e download_dir=${DOWNLOAD_DIR}
           site.yml
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: ovpn_${{ github.run_number }}
           path: ${{ env.DOWNLOAD_DIR }}
