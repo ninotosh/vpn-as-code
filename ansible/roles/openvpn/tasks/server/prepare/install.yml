@@ -36,6 +36,7 @@
   - name: update cache
     ansible.builtin.apt:
       update_cache: yes
+    changed_when: False
 
   - name: install openvpn
     ansible.builtin.apt:

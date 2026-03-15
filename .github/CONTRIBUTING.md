@@ -94,7 +94,7 @@ In the `molecule-bash` container, run `ansible-playbook` as in [deploy.yml](work
 On the host,
 
 ```
-docker cp molecule-bash:${path_to_download_dir} .
+docker cp molecule-bash:/tmp/download .
 ```
 
 Edit the `ovpn` file if necessary, and establish a VPN connection.
