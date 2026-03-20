@@ -1,3 +1,5 @@
+name: cue
+description: check format and validate
 inputs:
   data-file:
     required: true
@@ -9,29 +11,24 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: go-env
-      run: |
-        echo "GOCACHE=`go env GOCACHE`" >> $GITHUB_OUTPUT
-        echo "GOMODCACHE=`go env GOMODCACHE`" >> $GITHUB_OUTPUT
-      shell: bash
-
     - uses: actions/cache@v5
       id: cache
       with:
-        path: |
-          ${{ steps.go-env.outputs.GOCACHE }}
-          ${{ steps.go-env.outputs.GOMODCACHE }}
+        path: ~/bin/cue
         key: cue-${{ inputs.cue-version }}
 
-    - run: echo "GOBIN=`go env GOPATH`/bin" >> $GITHUB_ENV
-      shell: bash
-    - run: echo "PATH=$GOBIN:$PATH" >> $GITHUB_ENV
-      shell: bash
-    - run: go install cuelang.org/go/cmd/cue@v${{ inputs.cue-version }}
+    - if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p ~/bin
+        curl -L -o cue.tar.gz https://github.com/cue-lang/cue/releases/download/v${{ inputs.cue-version }}/cue_v${{ inputs.cue-version }}_linux_amd64.tar.gz
+        tar zxf cue.tar.gz
+        cp cue ~/bin/cue
       shell: bash
 
-    - name: cue fmt
-      run: cue fmt --check ${{ inputs.schema-file }}
+    - run: echo "PATH=~/bin:$PATH" >> $GITHUB_ENV
+      shell: bash
+
+    - run: cue fmt --check ${{ inputs.schema-file }}
       shell: bash
 
     - run: cue vet --concrete ${{ inputs.schema-file }} ${{ inputs.data-file }}
