@@ -1,0 +1,24 @@
+terraform_cloud:
+  organization:
+    name: organization_84380
+    workspace: integration_tests
+google_cloud:
+  project_id: tidy-interface-339810
+servers:
+  green:
+    provider: gc
+    gc:
+      compute: gce
+      gce:
+        region: us-west1
+        zone: b
+        machine_type: e2-micro
+        image:
+          project: ubuntu-os-cloud
+          family: ubuntu-2204-lts
+        enable_ipv6: true
+    applications:
+      - openvpn
+    clients:
+      - client1
+      - client2
