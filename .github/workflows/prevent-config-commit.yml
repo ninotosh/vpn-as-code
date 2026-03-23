@@ -1,13 +1,11 @@
-name: check unsuitable commit of files
+name: prevent config commit
 on:
   pull_request:
     paths:
       - config.yml
-      - '**/dev/**'
   push:
     paths:
       - config.yml
-      - '**/dev/**'
 
 jobs:
   fail:

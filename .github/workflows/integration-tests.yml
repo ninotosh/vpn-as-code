@@ -15,17 +15,17 @@ jobs:
 
       - uses: ./.github/actions/cue
         with:
-          data-file: dev/config-empty.yml
+          data-file: terraform/tests/config-empty.yml
           schema-file: config.cue
 
       - uses: ./.github/actions/cue
         with:
-          data-file: dev/config-aws.yml
+          data-file: terraform/tests/config-aws.yml
           schema-file: config.cue
 
       - uses: ./.github/actions/cue
         with:
-          data-file: dev/config-gc.yml
+          data-file: terraform/tests/config-gc.yml
           schema-file: config.cue
 
   empty:
@@ -37,10 +37,9 @@ jobs:
       run:
         working-directory: terraform
     env:
-      TARGET: ${{ github.job }}
-      CONFIG: ../dev/config-${{ github.job }}.yml
-      PLAN_RESOURCES_JSON_PATH: /tmp/${{ github.job }}_plan_resources.json
-      APPLY_OUTPUT_JSON_PATH: /tmp/${{ github.job }}_apply_output.json
+      CONFIG: tests/config-empty.yml
+      PLAN_RESOURCES_JSON_PATH: /tmp/empty_plan_resources.json
+      APPLY_OUTPUT_JSON_PATH: /tmp/empty_apply_output.json
 
     steps:
       - uses: actions/checkout@v6
@@ -74,10 +73,8 @@ jobs:
         env:
           HCP_TERRAFORM_TEAM_TOKEN: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
 
-      - uses: ./.github/actions/cue
-        with:
-          data-file: ${{ env.PLAN_RESOURCES_JSON_PATH }}
-          schema-file: dev/${{ env.TARGET }}-plan.cue
+      - run: |
+          [ "$(cat ${{ env.PLAN_RESOURCES_JSON_PATH }})" = '[]' ]
 
       - run: >
           make -f commands.mk
@@ -85,7 +82,5 @@ jobs:
           APPLY_OUTPUT_JSON_PATH=${APPLY_OUTPUT_JSON_PATH}
           apply-output
 
-      - uses: ./.github/actions/cue
-        with:
-          data-file: ${{ env.APPLY_OUTPUT_JSON_PATH }}
-          schema-file: dev/${{ env.TARGET }}-apply.cue
+      - run: |
+          [ "$(cat ${{ env.APPLY_OUTPUT_JSON_PATH }})" = '{}' ]
