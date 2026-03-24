@@ -1,5 +1,0 @@
-terraform_cloud:
-  organization:
-    name: organization_84380
-    workspace: integration_tests
-servers:
