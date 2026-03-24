@@ -99,14 +99,21 @@ sequenceDiagram
 [Use the template feature](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
 
 ## initialize the project
+
+### 1. set up HCP Terraform
+
+1. [create an organization](https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/organizations#create-an-organization)
+1. [create a workspace](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/create) in the CLI-driven workflow
+
+### 2. set up Google Cloud
+
+1. [create a project](https://developers.google.com/workspace/guides/create-project) if you deploy servers to Google Cloud
+
+## set up access
+
 ### 1. allow HCP Terraform to access the cloud services
 
-#### 1.1. set up HCP Terraform
-
-1. [create an organization](https://www.terraform.io/cloud-docs/users-teams-organizations/organizations#creating-organizations)
-1. [create a workspace](https://www.terraform.io/cloud-docs/workspaces/creating)
-
-#### 1.2. set up OIDC integration
+#### 1.1. set up OIDC integration
 
 ##### AWS
 
@@ -116,7 +123,7 @@ see https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-creden
 
 see https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-credentials/gcp-configuration
 
-#### 1.3. [set workspace-specific variables](https://www.terraform.io/cloud-docs/workspaces/variables/managing-variables#workspace-specific-variables) as follows
+#### 1.2. [set workspace-specific variables](https://www.terraform.io/cloud-docs/workspaces/variables/managing-variables#workspace-specific-variables) as follows
 
 > [!NOTE]  
 > replace `****` with your values

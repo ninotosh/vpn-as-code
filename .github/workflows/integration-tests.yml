@@ -1,48 +1,37 @@
 name: integration tests
 on:
   pull_request:
-env:
-  SSH_USER: ubuntu
 
 jobs:
-  cue:
-    if: ${{ endsWith(github.repository, '-dev') }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 2
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: ./.github/actions/cue
-        with:
-          data-file: terraform/tests/config-empty.yml
-          schema-file: config.cue
-
-      - uses: ./.github/actions/cue
-        with:
-          data-file: terraform/tests/config-aws.yml
-          schema-file: config.cue
-
-      - uses: ./.github/actions/cue
-        with:
-          data-file: terraform/tests/config-gc.yml
-          schema-file: config.cue
-
   empty:
-    needs:
-      - cue
+    if: ${{ endsWith(github.repository, '-dev') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     defaults:
       run:
         working-directory: terraform
     env:
+      SSH_USER: ubuntu
       CONFIG: tests/config-empty.yml
       PLAN_RESOURCES_JSON_PATH: /tmp/empty_plan_resources.json
       APPLY_OUTPUT_JSON_PATH: /tmp/empty_apply_output.json
 
     steps:
       - uses: actions/checkout@v6
+
+      - run: >
+          cat tests/config-empty.tpl.yml
+          | sed "s/\${TERRAFORM_ORGANIZATION}/${ORGANIZATION}/"
+          | sed "s/\${TERRAFORM_WORKSPACE}/${WORKSPACE}/"
+          > tests/config-empty.yml
+        env:
+          ORGANIZATION: '${{ vars.TEST_TERRAFORM_ORGANIZATION }}'
+          WORKSPACE: '${{ vars.TEST_TERRAFORM_WORKSPACE }}'
+
+      - uses: ./.github/actions/cue
+        with:
+          data-file: terraform/tests/config-empty.yml
+          schema-file: config.cue
 
       - name: set up terraform
         uses: hashicorp/setup-terraform@v4

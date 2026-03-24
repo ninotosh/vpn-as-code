@@ -152,8 +152,18 @@ On the host,
 
 # [integration tests](workflows/integration-tests.yml) in GitHub Actions
 
-1. if the team API token of HCP Terraform in
-the repository secret `HCP_TERRAFORM_TEAM_TOKEN`
-is expired, regenerate a token and set it.
-1. open a pull request
-1. check the GitHub Actions workflows
+1. [set a repository secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)
+
+| name | value |
+| ---- | ----- |
+| `HCP_TERRAFORM_TEAM_TOKEN` | HCP Terraform team API token |
+
+2. [set a repository variable](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables#creating-configuration-variables-for-a-repository)
+
+| name | value |
+| ---- | ----- |
+| `TEST_TERRAFORM_ORGANIZATION` | terraform organization name |
+| `TEST_TERRAFORM_WORKSPACE` | terraform workspace name |
+
+3. open a pull request
+4. check the GitHub Actions workflows
