@@ -80,3 +80,7 @@ ${gc_tf}: ${CONFIG} ${backend_hcl} ${servers_json} ${gc_json}
 	test ${expected_count} -gt 0 -o ${actual_count} -gt 0 \
 	&& cp templates/gc.tf ${gc_tf} \
 	|| echo -n '' > ${gc_tf}
+
+.PHONY: clean
+clean:
+	rm -f generated.* .terraform/terraform.tfstate

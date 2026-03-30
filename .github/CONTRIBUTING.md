@@ -43,6 +43,9 @@ In the container, run the same commands as in [deploy.yml](workflows/deploy.yml)
 > [!NOTE]  
 > for the `hashicorp/setup-terraform` action, run `terraform login` with a team API token
 
+> [!TIP]  
+> to remove automatically generated files, run `make clean`
+
 #### save output
 
 After `terraform apply`, run
