@@ -28,12 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - run: make generated.ssh.auto.tfvars.json
-
-      - run: make generated.backend.hcl
-
-      - run: make generated.servers.auto.tfvars.json
-
       - name: set up terraform
         uses: hashicorp/setup-terraform@v4
         with:
@@ -41,11 +35,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
           terraform_wrapper: false # for `make`
 
-      - run: terraform init -backend-config=generated.backend.hcl
-
-      - run: make generated.aws.tf
-
-      - run: make generated.gc.tf
+      - run: make
 
       - name: terraform plan
         run: |
