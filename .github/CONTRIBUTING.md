@@ -13,7 +13,7 @@
 
 #### generate an SSH key pair
 
-On the GitHub Actions page, run [keygen.yml](workflows/keygen.yml) and download the key pair,
+On the GitHub Actions page, run [keygen.yml](/.github/workflows/keygen.yml) and download the key pair,
 or run the same commands on the host machine.
 
 ### [Terraform](../terraform)
@@ -30,7 +30,7 @@ docker compose -f docker/compose.yaml run --rm --name terraform-bash terraform-b
 
 #### run `terraform`
 
-In the container, run the same commands as in [deploy.yml](workflows/deploy.yml)
+In the container, run the same commands as in [deploy.yml](/.github/workflows/deploy.yml)
 
 > [!NOTE]  
 > put the content of the public key in `SSH_PUBLIC_KEY`
@@ -79,7 +79,7 @@ docker cp ${path_to_ssh_private_key} molecule-bash:/root/ssh_key
 
 #### run `ansible-playbook`
 
-In the `molecule-bash` container, run `ansible-playbook` as in [deploy.yml](workflows/deploy.yml)
+In the `molecule-bash` container, run `ansible-playbook` as in [deploy.yml](/.github/workflows/deploy.yml)
 
 > [!TIP]  
 > All the necessary environment variables are already set in the container.
@@ -153,7 +153,7 @@ On the host,
 > You can not access the internet using this connection.
 
 
-# [integration tests](workflows/integration-tests.yml) in GitHub Actions
+# [integration tests](/.github/workflows/integration-tests.yml) in GitHub Actions
 
 1. [set a repository secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)
 
@@ -161,7 +161,7 @@ On the host,
 | ---- | ----- |
 | `HCP_TERRAFORM_TEAM_TOKEN` | HCP Terraform team API token |
 
-2. [set a repository variable](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables#creating-configuration-variables-for-a-repository)
+2. [set repository variables](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables#creating-configuration-variables-for-a-repository)
 
 | name | value |
 | ---- | ----- |
