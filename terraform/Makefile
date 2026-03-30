@@ -13,6 +13,9 @@ gc_json := generated.gc.auto.tfvars.json
 aws_tf := generated.aws.tf
 gc_tf := generated.gc.tf
 
+.PHONY: all
+all: init ${ssh_json} ${servers_json} ${aws_tf} ${gc_tf}
+
 ${ssh_json}:
 	echo "\
 	{\"ssh_user\": \"${SSH_USER}\", \"ssh_public_key\": \"${SSH_PUBLIC_KEY}\"}\
@@ -33,6 +36,13 @@ ${servers_json}: ${CONFIG}
 		| .[] |= {aws: null} + {gc: null} + . \
 		| {servers: .} \
 	" > ${servers_json}
+
+.PHONY: _terraform_init
+_terraform_init:
+	terraform init -backend-config=${backend_hcl}
+
+.PHONY: init
+init: ${backend_hcl} _terraform_init
 
 ${gc_json}: ${CONFIG}
 	yq eval . ${CONFIG} -o json \
@@ -70,3 +80,7 @@ ${gc_tf}: ${CONFIG} ${backend_hcl} ${servers_json} ${gc_json}
 	test ${expected_count} -gt 0 -o ${actual_count} -gt 0 \
 	&& cp templates/gc.tf ${gc_tf} \
 	|| echo -n '' > ${gc_tf}
+
+.PHONY: clean
+clean:
+	rm -f generated.* .terraform/terraform.tfstate
