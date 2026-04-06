@@ -1,7 +1,7 @@
 %{ for region in regions ~}
 provider "aws" {
-  alias      = "${region}"
-  region     = "${region}"
+  alias  = "${region}"
+  region = "${region}"
 }
 
 module "aws-${region}" {

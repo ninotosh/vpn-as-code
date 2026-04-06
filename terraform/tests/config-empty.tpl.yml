@@ -1,5 +1,0 @@
-terraform_cloud:
-  organization:
-    name: ${TERRAFORM_ORGANIZATION}
-    workspace: ${TERRAFORM_WORKSPACE}
-servers:

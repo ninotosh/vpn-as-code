@@ -3,73 +3,65 @@ on:
   pull_request:
 
 jobs:
-  empty:
+  cue-deploy:
     if: ${{ endsWith(github.repository, '-dev') }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 3
-    defaults:
-      run:
-        working-directory: terraform
-    env:
-      SSH_USER: ubuntu
-      CONFIG: tests/config-empty.yml
-      PLAN_RESOURCES_JSON_PATH: /tmp/empty_plan_resources.json
-      APPLY_OUTPUT_JSON_PATH: /tmp/empty_apply_output.json
-
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v6
-
-      - run: >
-          cat tests/config-empty.tpl.yml
-          | sed "s/\${TERRAFORM_ORGANIZATION}/${ORGANIZATION}/"
-          | sed "s/\${TERRAFORM_WORKSPACE}/${WORKSPACE}/"
-          > tests/config-empty.yml
-        env:
-          ORGANIZATION: '${{ vars.TEST_TERRAFORM_ORGANIZATION }}'
-          WORKSPACE: '${{ vars.TEST_TERRAFORM_WORKSPACE }}'
-
       - uses: ./.github/actions/cue
         with:
-          data-file: terraform/tests/config-empty.yml
+          data-file: tests/config-it.yml
+          schema-file: config.cue
+  deploy:
+    needs: cue-deploy
+    uses: ./.github/workflows/deploy.yml
+    with:
+      config: tests/config-it.yml
+      validate_tf: true
+    secrets:
+      HCP_TERRAFORM_TEAM_TOKEN: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+  test-deploy:
+    needs: deploy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: server count is more than 0
+        run: test "${{ needs.deploy.outputs.server-count }}" -gt 0
+
+      - name: ansible succeeded
+        run: test "${{ needs.deploy.outputs.ansible-result }}" = "success"
+
+  cue-empty:
+    needs: test-deploy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/cue
+        with:
+          data-file: tests/config-empty.yml
           schema-file: config.cue
 
-      - name: set up terraform
-        uses: hashicorp/setup-terraform@v4
-        with:
-          terraform_version: ~1.14
-          cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
-          terraform_wrapper: false # for `make`
+  empty:
+    needs: cue-empty
+    uses: ./.github/workflows/deploy.yml
+    with:
+      config: tests/config-empty.yml
+      validate_tf: true
+    secrets:
+      HCP_TERRAFORM_TEAM_TOKEN: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - run: >
-          make -f commands.mk
-          CONFIG="${CONFIG}"
-          SSH_USER="${SSH_USER}"
-          SSH_PUBLIC_KEY="${SSH_PUBLIC_KEY}"
-          init
-        env:
-          SSH_PUBLIC_KEY: '${{ vars.SSH_PUBLIC_KEY }}'
+  test-empty:
+    needs: empty
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: server count is 0
+        run: test "${{ needs.empty.outputs.server-count }}" -eq 0
 
-      - run: |
-          terraform fmt -recursive -check
-          terraform validate
-
-      - run: >
-          make -f commands.mk
-          CONFIG="${CONFIG}"
-          HCP_TERRAFORM_TEAM_TOKEN="${HCP_TERRAFORM_TEAM_TOKEN}"
-          PLAN_RESOURCES_JSON_PATH="${PLAN_RESOURCES_JSON_PATH}"
-          plan-resources
-        env:
-          HCP_TERRAFORM_TEAM_TOKEN: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
-
-      - run: |
-          [ "$(cat ${{ env.PLAN_RESOURCES_JSON_PATH }})" = '[]' ]
-
-      - run: >
-          make -f commands.mk
-          CONFIG="${CONFIG}"
-          APPLY_OUTPUT_JSON_PATH=${APPLY_OUTPUT_JSON_PATH}
-          apply-output
-
-      - run: |
-          [ "$(cat ${{ env.APPLY_OUTPUT_JSON_PATH }})" = '{}' ]
+      - name: ansible skipped
+        run: test "${{ needs.empty.outputs.ansible-result }}" = "skipped"

@@ -16,7 +16,7 @@
 On the GitHub Actions page, run [keygen.yml](/.github/workflows/keygen.yml) and download the key pair,
 or run the same commands on the host machine.
 
-### [Terraform](../terraform)
+### [Terraform](/terraform)
 
 #### start a container
 
@@ -54,7 +54,7 @@ After `terraform apply`, run
 terraform output -json > /tmp/tfout.json
 ```
 
-### [Ansible](../ansible)
+### [Ansible](/ansible)
 
 #### start a container
 
@@ -107,7 +107,7 @@ Edit the `ovpn` file if necessary, and establish a VPN connection.
 
 Only Ansible tasks can be developed without HCP Terraform and cloud servers.
 
-### [Ansible](../ansible)
+### [Ansible](/ansible)
 
 #### start a container
 
@@ -153,20 +153,13 @@ On the host,
 > You can not access the internet using this connection.
 
 
-# [integration tests](/.github/workflows/integration-tests.yml) in GitHub Actions
+# tests in GitHub Actions
 
-1. [set a repository secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)
+[Unit tests](/.github/workflows/unit-tests.yml) and
+[integration tests](/.github/workflows/integration-tests.yml) are run
+when you open a pull request in repositories whose names end with `-dev`.
+See the workflow files for details.
 
-| name | value |
-| ---- | ----- |
-| `HCP_TERRAFORM_TEAM_TOKEN` | HCP Terraform team API token |
-
-2. [set repository variables](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables#creating-configuration-variables-for-a-repository)
-
-| name | value |
-| ---- | ----- |
-| `TEST_TERRAFORM_ORGANIZATION` | terraform organization name |
-| `TEST_TERRAFORM_WORKSPACE` | terraform workspace name |
-
-3. open a pull request
-4. check the GitHub Actions workflows
+> [!NOTE]  
+> Test config files under `tests/` are not included in the public template repository
+> because some fields (e.g. Terraform organization name) in config files are personal settings.
