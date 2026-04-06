@@ -5,6 +5,29 @@ on:
       - main
     paths:
       - config.yml
+  workflow_call:
+    inputs:
+      config:
+        description: relative path from the workspace directory to a config file
+        type: string
+        required: false
+      validate_tf:
+        description: validate terraform files
+        type: boolean
+        required: false
+        default: false
+    secrets:
+      HCP_TERRAFORM_TEAM_TOKEN:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+    outputs:
+      json-output:
+        value: ${{ jobs.terraform.outputs.output }}
+      server-count:
+        value: ${{ jobs.terraform.outputs.server-count }}
+      ansible-result:
+        value: ${{ jobs.ansible.result }}
 env:
   SSH_USER: ubuntu
 
@@ -15,6 +38,8 @@ jobs:
     defaults:
       run:
         working-directory: terraform
+    env:
+      CONFIG: ${{ github.workspace }}/${{ inputs.config || 'config.yml' }}
     outputs:
       output: ${{ steps.output.outputs.stdout }}
       server-count: ${{ steps.server-count.outputs.output }}
@@ -31,11 +56,20 @@ jobs:
 
       - run: >
           make
+          CONFIG="${CONFIG}"
           SSH_USER="${SSH_USER}"
           SSH_PUBLIC_KEY="${{ vars.SSH_PUBLIC_KEY }}"
 
+      - if: inputs.validate_tf
+        run: terraform fmt -recursive -check
+
+      - if: inputs.validate_tf
+        name: terraform validate
+        run: |
+          make CONFIG="${CONFIG}" init # download modules
+          terraform validate
+
       - run: terraform apply -auto-approve
-      - run: terraform apply -auto-approve -refresh-only
 
       - id: output
         run: |
@@ -83,7 +117,7 @@ jobs:
       - run: ansible-galaxy collection install ansible.posix
 
       - env:
-          CONFIG: ../config.yml
+          CONFIG: "${{ github.workspace }}/${{ inputs.config || 'config.yml' }}"
           ANSIBLE_HOST_KEY_CHECKING: False
         run: >
           ansible-playbook
