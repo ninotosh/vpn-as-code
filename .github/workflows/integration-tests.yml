@@ -4,7 +4,8 @@ on:
 
 jobs:
   cue-deploy:
-    runs-on: ubuntu-latest
+    if: ${{ endsWith(github.repository, '-dev') }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v6
@@ -14,7 +15,6 @@ jobs:
           schema-file: config.cue
   deploy:
     needs: cue-deploy
-    if: ${{ endsWith(github.repository, '-dev') }}
     uses: ./.github/workflows/deploy.yml
     with:
       config: tests/config-it.yml
@@ -25,7 +25,7 @@ jobs:
 
   test-deploy:
     needs: deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
       - name: server count is more than 0
@@ -36,7 +36,7 @@ jobs:
 
   cue-empty:
     needs: test-deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v6
@@ -57,7 +57,7 @@ jobs:
 
   test-empty:
     needs: empty
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
       - name: server count is 0
