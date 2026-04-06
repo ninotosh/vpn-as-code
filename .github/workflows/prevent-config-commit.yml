@@ -2,14 +2,20 @@ name: prevent config commit
 on:
   pull_request:
     paths:
-      - config.yml
+      - '**/*config*.yml'
+      - '!**/*example*.yml'
+      - '!ansible/**'
+      - '!.github/**'
   push:
     paths:
-      - config.yml
+      - '**/*config*.yml'
+      - '!**/*example*.yml'
+      - '!ansible/**'
+      - '!.github/**'
 
 jobs:
   fail:
-    if: ${{ github.event.repository.is_template }}
+    if: github.event.repository.is_template
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:

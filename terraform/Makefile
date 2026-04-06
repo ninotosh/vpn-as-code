@@ -83,4 +83,8 @@ ${gc_tf}: ${CONFIG} ${backend_hcl} ${servers_json} ${gc_json}
 
 .PHONY: clean
 clean:
-	rm -f generated.* .terraform/terraform.tfstate
+	rm -f generated.*
+
+.PHONY: clean-terraform
+clean-terraform:
+	rm -fr .terraform.lock.hcl .terraform
