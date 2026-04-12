@@ -206,12 +206,22 @@ See [config-example.yml](config-example.yml) for example.
 > You can add more servers or clients by running the same steps.
 
 > [!TIP]  
-> to remove the existing servers, remove them in the `servers` section in `config.yml`
+> to remove all the existing servers, make `config.yml` look like the one below
 > and follow the same steps as to add servers
+
+```yaml
+terraform_cloud:
+  organization:
+    name: my_organization_2558
+    workspace: my_workspace
+google_cloud:
+  project_id: my-project-147248
+servers:
+```
 
 ## make a VPN connection on clients
 
-1. [download](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts) VPN client files from the GitHub Actions page
+1. [download](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts) the artifact for VPN client files from the GitHub Actions page
 1. optionally, edit the files as you like
 1. move the files to each client
 1. make a VPN connection on each client using the VPN application

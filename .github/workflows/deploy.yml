@@ -5,131 +5,18 @@ on:
       - main
     paths:
       - config.yml
-  workflow_call:
-    inputs:
-      config:
-        description: relative path from the workspace directory to a config file
-        type: string
-        required: false
-      validate_tf:
-        description: validate terraform files
-        type: boolean
-        required: false
-        default: false
-    secrets:
-      HCP_TERRAFORM_TEAM_TOKEN:
-        required: true
-      SSH_PRIVATE_KEY:
-        required: true
-    outputs:
-      json-output:
-        value: ${{ jobs.terraform.outputs.output }}
-      server-count:
-        value: ${{ jobs.terraform.outputs.server-count }}
-      ansible-result:
-        value: ${{ jobs.ansible.result }}
-env:
-  SSH_USER: ubuntu
 
 jobs:
   terraform:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 8
-    defaults:
-      run:
-        working-directory: terraform
-    env:
-      CONFIG: ${{ github.workspace }}/${{ inputs.config || 'config.yml' }}
-    outputs:
-      output: ${{ steps.output.outputs.stdout }}
-      server-count: ${{ steps.server-count.outputs.output }}
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: set up terraform
-        uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
-        with:
-          terraform_version: ~1.14
-          cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
-          terraform_wrapper: false # for `make`
-
-      - run: >
-          make
-          CONFIG="${CONFIG}"
-          SSH_USER="${SSH_USER}"
-          SSH_PUBLIC_KEY="${{ vars.SSH_PUBLIC_KEY }}"
-
-      - if: inputs.validate_tf
-        run: terraform fmt -recursive -check
-
-      - if: inputs.validate_tf
-        name: terraform validate
-        run: |
-          make CONFIG="${CONFIG}" init # download modules
-          terraform validate
-
-      - run: terraform apply -auto-approve
-
-      - id: output
-        run: |
-          echo "stdout<<EOF" >> $GITHUB_OUTPUT
-          echo "$(terraform output -json)" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - id: server-count
-        run: |
-          output="`
-            echo '${{ steps.output.outputs.stdout }}' |
-            jq '(.aws.value | length) + (.gc.value | length)'
-          `"
-          echo "output=$output" >> $GITHUB_OUTPUT
+    uses: ./.github/workflows/apply.yml
+    secrets:
+      HCP_TERRAFORM_TEAM_TOKEN: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
 
   ansible:
     needs: terraform
     if: fromJSON(needs.terraform.outputs.server-count) > 0
-    runs-on: ubuntu-24.04
-    timeout-minutes: 18
-    defaults:
-      run:
-        working-directory: ansible
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - run: |
-          private_key_path=`mktemp -p ${{ runner.temp }}`
-          cat << EOF > $private_key_path
-          ${{ secrets.SSH_PRIVATE_KEY }}
-          EOF
-          echo "SSH_PRIVATE_KEY_PATH=$private_key_path" >> $GITHUB_ENV
-
-      - run: |
-          cat << EOF > ${{ runner.temp }}/tfout.json
-          ${{ needs.terraform.outputs.output }}
-          EOF
-          echo "TERRAFORM_OUTPUT_PATH=${{ runner.temp }}/tfout.json" >> $GITHUB_ENV
-
-      - run: |
-          download_dir=`mktemp -d -p ${{ runner.temp }}`
-          echo "DOWNLOAD_DIR=$download_dir" >> $GITHUB_ENV
-
-      - run: ansible-galaxy collection install ansible.posix
-
-      - env:
-          CONFIG: "${{ github.workspace }}/${{ inputs.config || 'config.yml' }}"
-          ANSIBLE_HOST_KEY_CHECKING: False
-        run: >
-          ansible-playbook
-          -i inventory.sh
-          -u $SSH_USER
-          -e ansible_ssh_private_key_file=${SSH_PRIVATE_KEY_PATH}
-          -e download_dir=${DOWNLOAD_DIR}
-          site.yml
-
-      - uses: actions/upload-artifact@v7
-        with:
-          name: ovpn_${{ github.run_number }}
-          path: ${{ env.DOWNLOAD_DIR }}
-          retention-days: 1
-          if-no-files-found: ignore
+    uses: ./.github/workflows/ansible.yml
+    with:
+      terraform-output: "${{ needs.terraform.outputs.json-output }}"
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}

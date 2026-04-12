@@ -1,0 +1,79 @@
+name: terraform apply
+on:
+  workflow_call:
+    inputs:
+      config:
+        description: relative path from the workspace directory to a config file
+        type: string
+        required: false
+      validate_tf:
+        description: validate terraform files
+        type: boolean
+        required: false
+        default: false
+    secrets:
+      HCP_TERRAFORM_TEAM_TOKEN:
+        required: true
+    outputs:
+      json-output:
+        value: ${{ jobs.terraform.outputs.json-output }}
+      server-count:
+        value: ${{ jobs.terraform.outputs.server-count }}
+env:
+  SSH_USER: ubuntu
+
+jobs:
+  terraform:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      CONFIG: ${{ github.workspace }}/${{ inputs.config || 'config.yml' }}
+    outputs:
+      json-output: ${{ steps.terraform-output.outputs.json }}
+      server-count: ${{ steps.server-count.outputs.output }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.issue.pull_request && format('refs/pull/{0}/head', github.event.issue.number) || '' }}
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4
+        with:
+          terraform_version: ~1.14
+          cli_config_credentials_token: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
+          terraform_wrapper: false # for `make`
+
+      - run: >
+          make
+          CONFIG="${CONFIG}"
+          SSH_USER="${SSH_USER}"
+          SSH_PUBLIC_KEY="${{ vars.SSH_PUBLIC_KEY }}"
+
+      - if: inputs.validate_tf
+        run: terraform fmt -recursive -check
+
+      - if: inputs.validate_tf
+        name: terraform validate
+        run: |
+          make CONFIG="${CONFIG}" init # download modules
+          terraform validate
+
+      - run: terraform apply -auto-approve
+
+      - id: terraform-output
+        run: |
+          echo "json<<EOF" >> $GITHUB_OUTPUT
+          echo "$(terraform output -json)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - id: server-count
+        run: |
+          output="`
+            echo '${{ steps.terraform-output.outputs.json }}' |
+            jq '(.aws.value | length) + (.gc.value | length)'
+          `"
+          echo "output=$output" >> $GITHUB_OUTPUT

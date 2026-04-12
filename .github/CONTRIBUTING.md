@@ -30,7 +30,7 @@ docker compose -f docker/compose.yaml run --rm --name terraform-bash terraform-b
 
 #### run `terraform`
 
-In the container, run the same commands as in [deploy.yml](/.github/workflows/deploy.yml)
+In the container, run the same commands as in [apply.yml](/.github/workflows/apply.yml)
 
 > [!NOTE]  
 > put the content of the public key in `SSH_PUBLIC_KEY`
@@ -79,7 +79,7 @@ docker cp ${path_to_ssh_private_key} molecule-bash:/root/ssh_key
 
 #### run `ansible-playbook`
 
-In the `molecule-bash` container, run `ansible-playbook` as in [deploy.yml](/.github/workflows/deploy.yml)
+In the `molecule-bash` container, run `ansible-playbook` as in [ansible.yml](/.github/workflows/ansible.yml)
 
 > [!TIP]  
 > All the necessary environment variables are already set in the container.
@@ -155,10 +155,25 @@ On the host,
 
 # tests in GitHub Actions
 
-[Unit tests](/.github/workflows/unit-tests.yml) and
-[integration tests](/.github/workflows/integration-tests.yml) are run
-when you open a pull request in repositories whose names end with `-dev`.
+Tests are run in repositories whose names end with `-dev`.
 See the workflow files for details.
+
+## unit tests
+
+Open a pull request to run the [unit tests](/.github/workflows/unit-tests.yml).
+
+## integration tests
+
+To run the [integration tests](/.github/workflows/integration-tests.yml),
+open a pull request and comment either `/test full`, `/test deploy`, or `/test empty`
+on the pull request page.
+
+|  | deploy servers | run Ansible | clean up servers |config file|
+|---:|:---:|:---:|:---:|---|
+| `full` | ✅ | ✅ | ✅ |`tests/config-deploy.yml`|
+| `deploy` | ✅ | ❌ | ✅ |`tests/config-deploy.yml`|
+| `empty` | ❌ | ❌ | ✅ |`tests/config-empty.yml`|
+
 
 > [!NOTE]  
 > Test config files under `tests/` are not included in the public template repository

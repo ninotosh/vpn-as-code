@@ -1,0 +1,71 @@
+name: deploy servers
+on:
+  workflow_call:
+    inputs:
+      config:
+        description: relative path from the workspace directory to a config file
+        type: string
+        required: false
+      terraform-output:
+        description: JSON content of terraform output
+        type: string
+        required: true
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+    outputs:
+      artifact-id:
+        value: ${{ jobs.ansible.outputs.artifact-id }}
+env:
+  SSH_USER: ubuntu
+
+jobs:
+  ansible:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: ansible
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - run: |
+          private_key_path=`mktemp -p ${{ runner.temp }}`
+          cat << EOF > $private_key_path
+          ${{ secrets.SSH_PRIVATE_KEY }}
+          EOF
+          echo "SSH_PRIVATE_KEY_PATH=$private_key_path" >> $GITHUB_ENV
+
+      - run: |
+          cat << EOF > ${{ runner.temp }}/tfout.json
+          ${{ inputs.terraform-output }}
+          EOF
+          echo "TERRAFORM_OUTPUT_PATH=${{ runner.temp }}/tfout.json" >> $GITHUB_ENV
+
+      - run: |
+          download_dir=`mktemp -d -p ${{ runner.temp }}`
+          echo "DOWNLOAD_DIR=$download_dir" >> $GITHUB_ENV
+
+      - run: ansible-galaxy collection install ansible.posix
+
+      - env:
+          CONFIG: "${{ github.workspace }}/${{ inputs.config || 'config.yml' }}"
+          ANSIBLE_HOST_KEY_CHECKING: False
+        run: >
+          ansible-playbook
+          -i inventory.sh
+          -u $SSH_USER
+          -e ansible_ssh_private_key_file=${SSH_PRIVATE_KEY_PATH}
+          -e download_dir=${DOWNLOAD_DIR}
+          site.yml
+
+      - id: upload
+        uses: actions/upload-artifact@v7
+        with:
+          name: ovpn_${{ github.run_number }}
+          path: ${{ env.DOWNLOAD_DIR }}
+          retention-days: 1
+          if-no-files-found: ignore

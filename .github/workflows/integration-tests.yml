@@ -1,67 +1,185 @@
 name: integration tests
 on:
-  pull_request:
+  issue_comment:
+    types:
+      - created
 
 jobs:
+  start:
+    if: |
+      endsWith(github.repository, '-dev') &&
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/test ') &&
+      github.event.comment.author_association == 'OWNER'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    outputs:
+      check-id: ${{ steps.create-check.outputs.result }}
+      run-deploy: ${{ steps.targets.outputs.deploy }}
+      run-ansible: ${{ steps.targets.outputs.ansible }}
+
+    steps:
+      - id: targets
+        run: |
+          comment="${{ github.event.comment.body }}"
+          arg="${comment:6}"
+          case "${arg}" in
+            full)
+              echo "deploy=true" >> $GITHUB_OUTPUT
+              echo "ansible=true" >> $GITHUB_OUTPUT
+              ;;
+            deploy)
+              echo "deploy=true" >> $GITHUB_OUTPUT
+              echo "ansible=false" >> $GITHUB_OUTPUT
+              ;;
+            empty)
+              echo "deploy=false" >> $GITHUB_OUTPUT
+              echo "ansible=false" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              false
+              ;;
+          esac
+          echo "arg=${arg}" >> $GITHUB_OUTPUT
+
+      - id: get-sha
+        name: get-sha
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          result-encoding: string
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.issue.number
+            })
+            return pr.data.head.sha
+
+      - id: create-check
+        name: create-check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          result-encoding: string
+          script: |
+            const check = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "test ${{ steps.targets.outputs.arg }}",
+              head_sha: "${{ steps.get-sha.outputs.result }}",
+              status: 'in_progress'
+            })
+            return check.data.id
+            // status: queued, in_progress, completed
+
   cue-deploy:
-    if: ${{ endsWith(github.repository, '-dev') }}
+    needs: start
+    if: fromJSON(needs.start.outputs.run-deploy)
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/cue
         with:
-          data-file: tests/config-it.yml
+          data-file: tests/config-deploy.yml
           schema-file: config.cue
-  deploy:
+  
+  apply-deploy:
     needs: cue-deploy
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/apply.yml
     with:
-      config: tests/config-it.yml
+      config: tests/config-deploy.yml
       validate_tf: true
     secrets:
       HCP_TERRAFORM_TEAM_TOKEN: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
   test-deploy:
-    needs: deploy
+    needs: apply-deploy
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
       - name: server count is more than 0
-        run: test "${{ needs.deploy.outputs.server-count }}" -gt 0
+        run: test "${{ needs.apply-deploy.outputs.server-count }}" -gt 0
 
-      - name: ansible succeeded
-        run: test "${{ needs.deploy.outputs.ansible-result }}" = "success"
+  execute-ansible:
+    needs: [start, apply-deploy, test-deploy]
+    if: fromJSON(needs.start.outputs.run-ansible)
+    uses: ./.github/workflows/ansible.yml
+    with:
+      config: tests/config-deploy.yml
+      terraform-output: "${{ needs.apply-deploy.outputs.json-output }}"
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+  test-ansible:
+    needs: execute-ansible
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ needs.run-ansible.outputs.artifact-id }}
 
   cue-empty:
-    needs: test-deploy
+    needs: [apply-deploy, execute-ansible]
+    if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 2
+
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+
       - uses: ./.github/actions/cue
         with:
           data-file: tests/config-empty.yml
           schema-file: config.cue
 
-  empty:
+  apply-empty:
     needs: cue-empty
-    uses: ./.github/workflows/deploy.yml
+    if: always() && needs.cue-empty.result == 'success'
+    uses: ./.github/workflows/apply.yml
     with:
       config: tests/config-empty.yml
       validate_tf: true
     secrets:
       HCP_TERRAFORM_TEAM_TOKEN: ${{ secrets.HCP_TERRAFORM_TEAM_TOKEN }}
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
   test-empty:
-    needs: empty
+    needs: apply-empty
+    if: always() && needs.apply-empty.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
       - name: server count is 0
-        run: test "${{ needs.empty.outputs.server-count }}" -eq 0
+        run: test "${{ needs.apply-empty.outputs.server-count }}" -eq 0
 
-      - name: ansible skipped
-        run: test "${{ needs.empty.outputs.ansible-result }}" = "skipped"
+  conclude:
+    needs: [start, cue-deploy, test-deploy, execute-ansible, test-ansible, test-empty]
+    if: always() && needs.start.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+
+    steps:
+      - name: update-check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            check_id = "${{ needs.start.outputs.check-id }}"
+            cue_deploy = "${{ needs.cue-deploy.result }}"
+            test_deploy = "${{ needs.test-deploy.result }}"
+            execute_ansible = "${{ needs.execute-ansible.result }}"
+            test_ansible = "${{ needs.test-ansible.result }}"
+            empty_result = "${{ needs.test-empty.result }}"
+            deploy_ok = test_deploy == 'success' || (cue_deploy == 'skipped' && test_deploy == 'skipped')
+            ansible_ok = test_ansible == 'success' || (execute_ansible == 'skipped' && test_ansible == 'skipped')
+            empty_ok = empty_result == 'success'
+            conclusion = (deploy_ok && ansible_ok && empty_ok) && 'success' || 'failure'
+            github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: check_id,
+              conclusion: conclusion,
+            })
+            // result: success, failure, cancelled, skipped
+            // conclusion: action_required, cancelled, failure, neutral, success, skipped, stale, timed_out
