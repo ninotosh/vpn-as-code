@@ -2,7 +2,7 @@
 dependency:
   name: galaxy
   options:
-    force: False
+    force: false
 driver:
   name: docker
 platforms:

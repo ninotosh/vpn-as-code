@@ -1,16 +1,16 @@
 # https://community.openvpn.net/openvpn/wiki/OpenvpnSoftwareRepos
 - name: assert package manager is apt
   ansible.builtin.assert:
-    quiet: yes
+    quiet: true
     that:
       - ansible_facts.pkg_mgr == 'apt'
 
 - name: install packages to use apt repositories
   ansible.builtin.apt:
     name:
-    - ca-certificates
-    - gnupg
-    - openssl
+      - ca-certificates
+      - gnupg
+      - openssl
     state: latest
 
 - name: install openvpn
@@ -19,34 +19,34 @@
     _arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
     architecture: "{{ 'amd64' if _arch == 'x86_64' else _arch }}"
   block:
-  - name: install python3-debian for 'deb822_repository'
-    ansible.builtin.apt:
-      update_cache: yes
-      name: python3-debian
+    - name: install python3-debian for 'deb822_repository'
+      ansible.builtin.apt:
+        update_cache: true
+        name: python3-debian
 
-  - name: add apt repository
-    ansible.builtin.deb822_repository:
-      name: openvpn
-      uris: ["https://build.openvpn.net/debian/openvpn/release/{{ openvpn_release }}"]
-      suites: ["{{ ansible_distribution_release }}"]
-      components: ["main"]
-      architectures: ["{{ architecture }}"]
-      signed_by: https://swupdate.openvpn.net/repos/repo-public.gpg
+    - name: add apt repository
+      ansible.builtin.deb822_repository:
+        name: openvpn
+        uris: ["https://build.openvpn.net/debian/openvpn/release/{{ openvpn_release }}"]
+        suites: ["{{ ansible_distribution_release }}"]
+        components: ["main"]
+        architectures: ["{{ architecture }}"]
+        signed_by: https://swupdate.openvpn.net/repos/repo-public.gpg
 
-  - name: update cache
-    ansible.builtin.apt:
-      update_cache: yes
-    changed_when: False
+    - name: update cache
+      ansible.builtin.apt:
+        update_cache: true
+      changed_when: false
 
-  - name: install openvpn
-    ansible.builtin.apt:
-      name: openvpn
+    - name: install openvpn
+      ansible.builtin.apt:
+        name: openvpn
 
-  - name: install openvpn-dco-dkms
-    ansible.builtin.apt:
-      name: openvpn-dco-dkms
-    when: ansible_facts.memtotal_mb >= 900
-    ignore_errors: yes # may fail on small RAM
+    - name: install openvpn-dco-dkms
+      ansible.builtin.apt:
+        name: openvpn-dco-dkms
+      when: ansible_facts.memtotal_mb >= 900
+      ignore_errors: true # may fail on small RAM
 
 - name: create server key directory
   ansible.builtin.file:

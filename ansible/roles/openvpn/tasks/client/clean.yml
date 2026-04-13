@@ -11,7 +11,7 @@
 
 - name: delete local files
   delegate_to: localhost
-  become: no
+  become: false
   loop:
     - "{{ tls_crypt_v2_local }}"
     - "{{ key_local }}"

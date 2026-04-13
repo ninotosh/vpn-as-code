@@ -4,7 +4,7 @@
       /usr/bin/printf '/etc/openvpn/client/%s-fp.txt ' {{ clients | join(' ') }}
       | xargs cat
   register: fingerprints_result
-  changed_when: False
+  changed_when: false
 
 - name: run server with systemd
   # https://community.openvpn.net/openvpn/wiki/Systemd
@@ -19,21 +19,21 @@
 - name: run server with sysvinit
   when: ansible_facts.service_mgr == 'sysvinit'
   block:
-  - name: template server conf
-    loop:
-      - server-tcp
-      - server-udp
-    loop_control:
-      loop_var: conf_name
-    ansible.builtin.template:
-      src: "{{ conf_name }}.conf.j2"
-      dest: "{{ openvpn_dir }}/{{ conf_name }}.conf"
-      mode: u=rw,g=r,o=r
-    notify:
-    - reload openvpn
+    - name: template server conf
+      loop:
+        - server-tcp
+        - server-udp
+      loop_control:
+        loop_var: conf_name
+      ansible.builtin.template:
+        src: "{{ conf_name }}.conf.j2"
+        dest: "{{ openvpn_dir }}/{{ conf_name }}.conf"
+        mode: u=rw,g=r,o=r
+      notify:
+        - reload openvpn
 
-  - name: start openvpn
-    ansible.builtin.service:
-      name: openvpn
-      state: started
-      enabled: yes
+    - name: start openvpn
+      ansible.builtin.service:
+        name: openvpn
+        state: started
+        enabled: true

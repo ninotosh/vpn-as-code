@@ -2,15 +2,15 @@
   ansible.builtin.command:
     cmd: which journalctl
   register: which_journalctl_result
-  changed_when: False
-  ignore_errors: yes
+  changed_when: false
+  ignore_errors: true
 
 - name: get the first boot time
   when: not which_journalctl_result.failed
   ansible.builtin.shell:
     cmd: journalctl --list-boots | head -n 1 | cut -d ' ' -f 5-6
   register: journalctl_list_boots_result
-  changed_when: False
+  changed_when: false
 
 - name: stat /proc/1
   # must be a container
@@ -18,7 +18,7 @@
   ansible.builtin.command:
     cmd: stat -c %Y /proc/1/cmdline
   register: stat_proc_1_result
-  changed_when: False
+  changed_when: false
 
 - name: set IPv6 ULA network
   vars:
@@ -28,7 +28,7 @@
     ipv6_ula_subnet_id_tcp: "{{ (inventory_hostname + 'tcp' | hash('sha1'))[-4:] }}"
     ipv6_ula_subnet_id_udp: "{{ (inventory_hostname + 'udp' | hash('sha1'))[-4:] }}"
   block:
-  - name: set IPv6 ULA network
-    ansible.builtin.set_fact:
-      ipv6_ula_network_tcp: "{{ ipv6_ula_global_network }}:{{ ipv6_ula_subnet_id_tcp }}::/64"
-      ipv6_ula_network_udp: "{{ ipv6_ula_global_network }}:{{ ipv6_ula_subnet_id_udp }}::/64"
+    - name: set IPv6 ULA network
+      ansible.builtin.set_fact:
+        ipv6_ula_network_tcp: "{{ ipv6_ula_global_network }}:{{ ipv6_ula_subnet_id_tcp }}::/64"
+        ipv6_ula_network_udp: "{{ ipv6_ula_global_network }}:{{ ipv6_ula_subnet_id_udp }}::/64"

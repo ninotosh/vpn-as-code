@@ -1,6 +1,6 @@
 - name: touch fetch dest directory
   delegate_to: localhost
-  become: no
+  become: false
   ansible.builtin.file:
     state: directory
     path: "{{ fetch_dest_dir }}"

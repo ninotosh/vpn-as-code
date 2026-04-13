@@ -1,5 +1,6 @@
-- hosts: all
-  gather_facts: no
+- name: all
+  hosts: all
+  gather_facts: false
   tasks:
     - name: wait for connection
       ansible.builtin.wait_for_connection:
@@ -8,6 +9,6 @@
       ansible.builtin.setup:
     - name: import openvpn role
       when: '"openvpn" in applications'
-      become: yes
+      become: true
       ansible.builtin.import_role:
         name: openvpn
