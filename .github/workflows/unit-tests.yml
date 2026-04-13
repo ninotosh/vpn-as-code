@@ -11,7 +11,6 @@ on:
 
 jobs:
   cue:
-    if: ${{ github.event.repository.is_template || endsWith(github.repository, '-dev') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
 
@@ -24,7 +23,6 @@ jobs:
           schema-file: config.cue
 
   conftest:
-    if: ${{ github.event.repository.is_template || endsWith(github.repository, '-dev') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     defaults:
