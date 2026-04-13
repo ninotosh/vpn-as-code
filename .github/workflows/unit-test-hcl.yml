@@ -1,26 +1,12 @@
-name: unit tests
+name: validate terraform files
 on:
   pull_request:
     paths:
-      - .github/workflows/unit-tests.yml
-      - .github/actions/cue/action.yml
-      - config-example.yml
-      - config.cue
-      - terraform/modules/**/*.tf
-      - terraform/policy/**/*.rego
+      - .github/workflows/unit-test-hcl.yml
+      - terraform/**/*.tf
+      - terraform/**/*.rego
 
 jobs:
-  cue:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 2
-
-    steps:
-      - uses: actions/checkout@v6
-      - name: validate example
-        uses: ./.github/actions/cue
-        with:
-          data-file: config-example.yml
-
   conftest:
     runs-on: ubuntu-24.04
     timeout-minutes: 1

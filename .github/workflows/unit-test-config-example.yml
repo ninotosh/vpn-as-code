@@ -1,0 +1,20 @@
+name: validate config example
+on:
+  pull_request:
+    paths:
+      - .github/workflows/unit-test-config-example.yml
+      - .github/actions/cue/action.yml
+      - config-example.yml
+      - config.cue
+
+jobs:
+  cue:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/cue
+        with:
+          data-file: config-example.yml
