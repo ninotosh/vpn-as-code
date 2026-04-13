@@ -4,7 +4,8 @@ inputs:
   data-file:
     required: true
   schema-file:
-    required: true
+    default: config.cue
+    required: false
   cue-version:
     default: 0.16.0
 
