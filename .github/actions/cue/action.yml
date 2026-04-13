@@ -20,7 +20,8 @@ runs:
     - if: steps.cache.outputs.cache-hit != 'true'
       run: |
         mkdir -p ~/bin
-        curl -L -o cue.tar.gz https://github.com/cue-lang/cue/releases/download/v${{ inputs.cue-version }}/cue_v${{ inputs.cue-version }}_linux_amd64.tar.gz
+        ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')"
+        curl -L -o cue.tar.gz https://github.com/cue-lang/cue/releases/download/v${{ inputs.cue-version }}/cue_v${{ inputs.cue-version }}_linux_${ARCH}.tar.gz
         tar zxf cue.tar.gz
         cp cue ~/bin/cue
       shell: bash

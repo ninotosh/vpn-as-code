@@ -43,7 +43,8 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/bin
-          curl -L -o conftest.tar.gz https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_x86_64.tar.gz
+          ARCH="$(uname -m | sed 's/aarch64/arm64/')"
+          curl -L -o conftest.tar.gz https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_${ARCH}.tar.gz
           tar zxf conftest.tar.gz
           cp conftest ~/bin/conftest
 
