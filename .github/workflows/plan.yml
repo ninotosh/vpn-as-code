@@ -15,7 +15,6 @@ jobs:
         uses: ./.github/actions/cue
         with:
           data-file: config.yml
-          schema-file: config.cue
 
   plan:
     needs: cue

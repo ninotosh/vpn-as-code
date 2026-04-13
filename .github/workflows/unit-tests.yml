@@ -1,10 +1,16 @@
 name: unit tests
 on:
   pull_request:
+    paths:
+      - .github/workflows/unit-tests.yml
+      - .github/actions/cue/action.yml
+      - config-example.yml
+      - config.cue
+      - terraform/modules/**/*.tf
+      - terraform/policy/**/*.rego
 
 jobs:
   cue:
-    if: ${{ github.event.repository.is_template || endsWith(github.repository, '-dev') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
 
@@ -14,10 +20,8 @@ jobs:
         uses: ./.github/actions/cue
         with:
           data-file: config-example.yml
-          schema-file: config.cue
 
   conftest:
-    if: ${{ github.event.repository.is_template || endsWith(github.repository, '-dev') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     defaults:
@@ -38,7 +42,8 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/bin
-          curl -L -o conftest.tar.gz https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_x86_64.tar.gz
+          ARCH="$(uname -m | sed 's/aarch64/arm64/')"
+          curl -L -o conftest.tar.gz https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_${ARCH}.tar.gz
           tar zxf conftest.tar.gz
           cp conftest ~/bin/conftest
 

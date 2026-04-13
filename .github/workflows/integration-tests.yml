@@ -81,7 +81,6 @@ jobs:
       - uses: ./.github/actions/cue
         with:
           data-file: tests/config-deploy.yml
-          schema-file: config.cue
   
   apply-deploy:
     needs: cue-deploy
@@ -133,7 +132,6 @@ jobs:
       - uses: ./.github/actions/cue
         with:
           data-file: tests/config-empty.yml
-          schema-file: config.cue
 
   apply-empty:
     needs: cue-empty
