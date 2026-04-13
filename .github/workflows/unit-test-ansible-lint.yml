@@ -1,0 +1,37 @@
+name: lint ansible files
+on:
+  pull_request:
+    paths:
+      - .github/workflows/unit-test-ansible-lint.yml
+      - ansible/**/*.yml
+      - ansible/**/*.yaml
+
+jobs:
+  yamllint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    defaults:
+      run:
+        working-directory: ansible
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - run: yamllint .
+
+  ansible-lint:
+    needs: yamllint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    defaults:
+      run:
+        working-directory: ansible
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - run: python3 -m pip install ansible-lint
+
+      - run: ansible-galaxy collection install ansible.posix
+
+      - run: ansible-lint
