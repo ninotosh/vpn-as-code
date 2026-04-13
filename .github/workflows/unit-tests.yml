@@ -1,6 +1,13 @@
 name: unit tests
 on:
   pull_request:
+    paths:
+      - .github/workflows/unit-tests.yml
+      - .github/actions/cue/action.yml
+      - config-example.yml
+      - config.cue
+      - terraform/modules/**/*.tf
+      - terraform/policy/**/*.rego
 
 jobs:
   cue:
