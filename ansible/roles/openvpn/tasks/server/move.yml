@@ -11,7 +11,7 @@
 - name: copy {{ src }}
   when: move_src_stat.stat.exists and not move_dest_stat.stat.exists
   ansible.builtin.copy:
-    remote_src: yes
+    remote_src: true
     src: "{{ src }}"
     dest: "{{ dest }}"
     mode: "{{ mode }}"

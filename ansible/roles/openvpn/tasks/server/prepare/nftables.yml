@@ -14,17 +14,17 @@
   ansible.builtin.command:
     cmd: nft list ruleset
   register: nft_list_ruleset_before_result
-  changed_when: False
+  changed_when: false
 
 - name: clear nft ruleset
   ansible.builtin.command:
     cmd: nft flush ruleset
-  changed_when: False
+  changed_when: false
 
 - name: load nft ruleset
   ansible.builtin.command:
     cmd: nft -f /etc/nftables.conf
-  changed_when: False
+  changed_when: false
 
 - name: detect nft ruleset change
   ansible.builtin.command:
@@ -36,5 +36,5 @@
   when: ansible_facts.service_mgr == 'systemd'
   ansible.builtin.service:
     name: nftables.service
-    enabled: yes
+    enabled: true
     state: started

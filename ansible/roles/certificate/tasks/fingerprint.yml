@@ -1,7 +1,7 @@
 - name: take a fingerprint
   ansible.builtin.command: openssl x509 -fingerprint -noout -sha256 -in "{{ certificate_path }}"
   register: fingerprint_result
-  changed_when: False
+  changed_when: false
 
 - name: template fingerprint
   vars:

@@ -2,7 +2,7 @@
 dependency:
   name: galaxy
   options:
-    force: False
+    force: false
 driver:
   name: docker
 platforms:
@@ -45,7 +45,3 @@ provisioner:
     ANSIBLE_ROLES_PATH: ../../../ # https://github.com/ansible/molecule/issues/4391
 verifier:
   name: ansible
-lint: |
-  set -e
-  yamllint .
-  ansible-lint -x meta-no-info

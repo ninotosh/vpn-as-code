@@ -5,7 +5,7 @@
 
 - name: check {{ dest }}
   delegate_to: localhost
-  become: no
+  become: false
   ansible.builtin.stat:
     path: "{{ dest }}"
   register: fetch_dest_stat
@@ -15,4 +15,4 @@
   ansible.builtin.fetch:
     src: "{{ src }}"
     dest: "{{ dest }}"
-    flat: yes
+    flat: true
