@@ -178,3 +178,20 @@ on the pull request page.
 > [!NOTE]  
 > Test config files under `tests/` are not included in the public template repository
 > because some fields (e.g. Terraform organization name) in config files are personal settings.
+
+
+# dependency update
+
+[`renovatebot/github-action`](https://github.com/renovatebot/github-action)
+is scheduled to automatically make pull requests to update dependencies.
+
+1. [create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) with these scopes:
+
+- `repo`
+- `workflow`
+
+See the [token](https://github.com/renovatebot/github-action?tab=readme-ov-file#token)
+for details.
+
+2. [set a repository secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)
+called `RENOVATE_TOKEN` with the token from the previous step
