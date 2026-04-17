@@ -49,7 +49,7 @@ jobs:
           download_dir=`mktemp -d -p ${{ runner.temp }}`
           echo "DOWNLOAD_DIR=$download_dir" >> $GITHUB_ENV
 
-      - run: ansible-galaxy collection install ansible.posix
+      - run: ansible-galaxy collection install -r roles/openvpn/requirements.yml
 
       - env:
           CONFIG: "${{ github.workspace }}/${{ inputs.config || 'config.yml' }}"

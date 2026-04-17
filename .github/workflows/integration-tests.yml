@@ -7,9 +7,9 @@ on:
 jobs:
   start:
     if: |
-      endsWith(github.repository, '-dev') &&
+      !github.event.repository.is_template &&
       github.event.issue.pull_request &&
-      startsWith(github.event.comment.body, '/test ') &&
+      startsWith(github.event.comment.body, '/it ') &&
       github.event.comment.author_association == 'OWNER'
     runs-on: ubuntu-24.04
     timeout-minutes: 1
@@ -21,8 +21,9 @@ jobs:
     steps:
       - id: targets
         run: |
+          command='/it '
           comment="${{ github.event.comment.body }}"
-          arg="${comment:6}"
+          arg="${comment:${#command}}"
           case "${arg}" in
             full)
               echo "deploy=true" >> $GITHUB_OUTPUT
@@ -120,7 +121,7 @@ jobs:
 
   cue-empty:
     needs: [apply-deploy, execute-ansible]
-    if: always()
+    if: always() && needs.apply-deploy.result != 'skipped'
     runs-on: ubuntu-24.04
     timeout-minutes: 2
 

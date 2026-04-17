@@ -1,0 +1,43 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: test create
+      block:
+        - name: extract public key from private key
+          ansible.builtin.shell:
+            cmd: >
+              openssl ec -pubout -in /tmp/my-subject.key
+              | sha256sum
+              | cut -d ' ' -f 1
+          register: from_private_key
+
+        - name: extract public key from certificate
+          ansible.builtin.shell:
+            cmd: >
+              openssl x509 -pubkey -noout -in /tmp/my-subject.crt
+              | sha256sum
+              | cut -d ' ' -f 1
+          register: from_certificate
+
+        - name: assert public keys match
+          ansible.builtin.assert:
+            that: from_private_key.stdout == from_certificate.stdout
+
+    - name: test fingerprint
+      block:
+        - name: calculate fingerprint of certificate
+          ansible.builtin.shell:
+            cmd: >
+              openssl x509 -fingerprint -noout -sha256 -in /tmp/my-subject.crt
+              | cut -d '=' -f 2
+          register: crt_fingerprint
+
+        - name: cat fingerprint file
+          ansible.builtin.command: cat /tmp/my-subject-fingerprint.txt
+          register: file_fingerprint
+
+        - name: assert fingerprints match
+          ansible.builtin.assert:
+            that: crt_fingerprint.stdout == file_fingerprint.stdout

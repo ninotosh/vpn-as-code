@@ -1,0 +1,123 @@
+name: molecule
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  start:
+    if: >
+      !github.event.repository.is_template &&
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/molecule ') &&
+      github.event.comment.author_association == 'OWNER'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    outputs:
+      check-id: ${{ steps.create-check.outputs.result }}
+      run-certificate: ${{ steps.targets.outputs.certificate }}
+      run-openvpn: ${{ steps.targets.outputs.openvpn }}
+
+    steps:
+      - id: targets
+        run: |
+          command='/molecule '
+          comment="${{ github.event.comment.body }}"
+          arg="${comment:${#command}}"
+          case "${arg}" in
+            all)
+              echo "certificate=true" >> $GITHUB_OUTPUT
+              echo "openvpn=true" >> $GITHUB_OUTPUT
+              ;;
+            certificate)
+              echo "certificate=true" >> $GITHUB_OUTPUT
+              echo "openvpn=false" >> $GITHUB_OUTPUT
+              ;;
+            openvpn)
+              echo "certificate=false" >> $GITHUB_OUTPUT
+              echo "openvpn=true" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              false
+              ;;
+          esac
+          echo "arg=${arg}" >> $GITHUB_OUTPUT
+
+      - id: get-sha
+        name: get-sha
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          result-encoding: string
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.issue.number
+            })
+            return pr.data.head.sha
+
+      - id: create-check
+        name: create-check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          result-encoding: string
+          script: |
+            const check = await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: "test ${{ steps.targets.outputs.arg }}",
+              head_sha: "${{ steps.get-sha.outputs.result }}",
+              status: 'in_progress'
+            })
+            return check.data.id
+
+  molecule:
+    needs: start
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ansible
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: install molecule
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libffi-dev
+          python3 -m pip install molecule "molecule-plugins[docker]"
+
+      - if: fromJSON(needs.start.outputs.run-certificate)
+        name: test roles/certificate
+        run: molecule test
+        working-directory: ansible/roles/certificate
+
+      - if: fromJSON(needs.start.outputs.run-openvpn)
+        name: test roles/openvpn
+        run: |
+          ansible-galaxy collection install -r requirements.yml
+          molecule test
+        working-directory: ansible/roles/openvpn
+
+  conclude:
+    needs: [start, molecule]
+    if: always() && needs.start.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+
+    steps:
+      - name: update-check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            check_id = "${{ needs.start.outputs.check-id }}"
+            molecule_result = "${{ needs.molecule.result }}"
+            molecule_ok = molecule_result == 'success' || molecule_result == 'skipped'
+            conclusion = molecule_ok && 'success' || 'failure'
+            github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: check_id,
+              conclusion: conclusion,
+            })

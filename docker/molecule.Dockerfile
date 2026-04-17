@@ -26,6 +26,7 @@ RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
 FROM ${IMAGE}
 COPY --from=jq /usr/local/bin/jq /usr/local/bin
 COPY --from=yq /usr/local/bin/yq /usr/local/bin
+COPY --from=ansible_roles_openvpn requirements.yml /tmp
 
 RUN apt-get remove docker docker-engine docker.io containerd runc || true
 RUN apt update && \
@@ -47,4 +48,4 @@ RUN echo 'eval "$(_MOLECULE_COMPLETE=bash_source molecule)"' >> /etc/bash.bashrc
 
 # for ansible
 RUN apt-get install -y --no-install-recommends rsync
-RUN ansible-galaxy collection install ansible.posix
+RUN ansible-galaxy collection install -r /tmp/requirements.yml
