@@ -15,6 +15,8 @@ services:
     build:
       context: '.'
       dockerfile: molecule.Dockerfile
+      additional_contexts:
+        ansible_roles_openvpn: ../ansible/roles/openvpn
     entrypoint: /bin/bash
     environment:
       SSH_USER: ubuntu
