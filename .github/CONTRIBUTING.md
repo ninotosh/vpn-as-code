@@ -165,7 +165,7 @@ Open a pull request to run the [unit tests](/.github/workflows/unit-tests.yml).
 ## integration tests
 
 To run the [integration tests](/.github/workflows/integration-tests.yml),
-open a pull request and comment either `/test full`, `/test deploy`, or `/test empty`
+open a pull request and comment either `/it full`, `/it deploy`, or `/it empty`
 on the pull request page.
 
 |  | deploy servers | run Ansible | clean up servers |config file|
