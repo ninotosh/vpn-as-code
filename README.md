@@ -108,6 +108,7 @@ sequenceDiagram
 ### 2. set up Google Cloud
 
 1. [create a project](https://developers.google.com/workspace/guides/create-project) if you deploy servers to Google Cloud
+1. [enable the Compute Engine API](https://console.cloud.google.com/apis/library/compute.googleapis.com)
 
 ## set up access
 
@@ -117,31 +118,41 @@ sequenceDiagram
 
 ##### AWS
 
-see https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-credentials/aws-configuration
+See [Use dynamic credentials with the AWS provider](https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-credentials/aws-configuration)
+for details.
 
 ##### Google Cloud
 
-see https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-credentials/gcp-configuration
+**[Add a Workload Identity Pool and Provider](https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-credentials/gcp-configuration#add-a-workload-identity-pool-and-provider)**
+
+Additionally set this attribute mapping on the provider.
+
+| Google | OIDC |
+| --- | --- |
+|`attribute.terraform_organization_name`|`assertion.terraform_organization_name`|
+
+See [Configure attribute mapping](https://developer.hashicorp.com/terraform/enterprise/registry/test/dynamic-credentials/gcp#configure-attribute-mapping)
+for details.
+
+**[Add Permissions to the Workload Identity Principal](https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-credentials/gcp-configuration#add-permissions-to-the-workload-identity-principal)**
+
+The principal should look like the following.
+
+```
+principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/attribute.terraform_organization_name/ORGANIZATION_NAME
+```
+
+Select `Compute Admin` when assigning roles to the workload identity pool principal.
 
 #### 1.2. [set workspace-specific variables](https://www.terraform.io/cloud-docs/workspaces/variables/managing-variables#workspace-specific-variables) as follows
 
-> [!NOTE]  
-> replace `****` with your values
-
 ##### AWS
 
-| category | key | value | sensitive |
-| -------- | --- | ----- | --------- |
-| environment | TFC_AWS_PROVIDER_AUTH | `true` | no |
-| environment | TFC_AWS_RUN_ROLE_ARN | `arn:aws:iam::****:role/****` | no |
+See [Required Environment Variables](https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-credentials/aws-configuration#required-environment-variables).
 
 ##### Google Cloud
 
-| category | key | value | sensitive |
-| -------- | --- | ----- | --------- |
-| environment | TFC_GCP_PROVIDER_AUTH | `true` | no |
-| environment | TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL | `****@developer.gserviceaccount.com` | no |
-| environment | TFC_GCP_WORKLOAD_PROVIDER_NAME | `projects/****/locations/global/workloadIdentityPools/****/providers/****` | no |
+See [Required Environment Variables](https://developer.hashicorp.com/terraform/cloud-docs/dynamic-provider-credentials/gcp-configuration#required-environment-variables).
 
 
 ### 2. allow GitHub to access HCP Terraform
