@@ -7,7 +7,7 @@ on:
 jobs:
   start:
     if: |
-      endsWith(github.repository, '-dev') &&
+      !github.event.repository.is_template &&
       github.event.issue.pull_request &&
       startsWith(github.event.comment.body, '/it ') &&
       github.event.comment.author_association == 'OWNER'
