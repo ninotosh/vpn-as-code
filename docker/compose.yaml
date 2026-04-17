@@ -1,7 +1,7 @@
 services:
   terraform-bash:
     build:
-      context: '.'
+      context: .
       dockerfile: terraform.Dockerfile
     entrypoint: /bin/bash
     environment:
@@ -13,7 +13,7 @@ services:
     tty: true
   molecule-bash:
     build:
-      context: '.'
+      context: .
       dockerfile: molecule.Dockerfile
       additional_contexts:
         ansible_roles_openvpn: ../ansible/roles/openvpn
@@ -33,7 +33,7 @@ services:
     tty: true
   cue-bash:
     build:
-      context: '.'
+      context: .
       dockerfile: cue.Dockerfile
     entrypoint: /bin/bash
     volumes:
@@ -43,7 +43,7 @@ services:
     tty: true
   conftest-bash:
     build:
-      context: '.'
+      context: .
       dockerfile: conftest.Dockerfile
     entrypoint: /bin/bash
     volumes:
