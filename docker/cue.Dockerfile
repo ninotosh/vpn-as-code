@@ -1,7 +1,9 @@
-ARG IMAGE=ubuntu:24.04
+# renovate: datasource=github-runners depName=ubuntu
+ARG UBUNTU_VERSION=24.04
 
-FROM ${IMAGE} AS cue
-ARG CUE_VERSION=0.16.0
+FROM ubuntu:${UBUNTU_VERSION} AS cue
+# renovate: datasource=github-releases depName=cue-lang/cue
+ARG CUE_VERSION=0.16.1
 
 RUN apt update && \
     apt install -y --no-install-recommends curl ca-certificates
@@ -12,7 +14,7 @@ RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
     cp cue /usr/local/bin && \
     cue version
 
-FROM ${IMAGE}
+FROM ubuntu:${UBUNTU_VERSION}
 COPY --from=cue /usr/local/bin/cue /usr/local/bin
 
 RUN apt update && \

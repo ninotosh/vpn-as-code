@@ -1,7 +1,9 @@
-ARG IMAGE=ubuntu:24.04
+# renovate: datasource=github-runners depName=ubuntu
+ARG UBUNTU_VERSION=24.04
 
-FROM ${IMAGE} AS conftest
-ARG CONFTEST_VERSION=0.49.0
+FROM ubuntu:${UBUNTU_VERSION} AS conftest
+# renovate: datasource=github-releases depName=open-policy-agent/conftest
+ARG CONFTEST_VERSION=0.68.2
 
 RUN apt update && \
     apt install -y --no-install-recommends curl ca-certificates
@@ -12,7 +14,7 @@ RUN ARCH="$(uname -m | sed 's/aarch64/arm64/')" && \
     cp conftest /usr/local/bin && \
     conftest --version
 
-FROM ${IMAGE}
+FROM ubuntu:${UBUNTU_VERSION}
 COPY --from=conftest /usr/local/bin/conftest /usr/local/bin
 
 RUN apt update && \
