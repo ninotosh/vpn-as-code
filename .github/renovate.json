@@ -1,7 +1,20 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
-        "config:best-practices"
+        "config:best-practices",
+        "customManagers:dockerfileVersions",
+        "customManagers:githubActionsVersions"
     ],
-    "minimumReleaseAge": "7 days"
+    "minimumReleaseAge": "7 days",
+    "packageRules": [
+        {
+            "matchFileNames": [
+                "docker/molecule.Dockerfile"
+            ],
+            "matchPackageNames": [
+                "ansible_roles_openvpn"
+            ],
+            "enabled": false
+        }
+    ]
 }

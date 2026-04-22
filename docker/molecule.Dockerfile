@@ -1,6 +1,7 @@
-ARG IMAGE=python:3.14-trixie
+# renovate: datasource=github-runners depName=ubuntu
+ARG UBUNTU_VERSION=24.04
 
-FROM ${IMAGE} AS jq
+FROM ubuntu:${UBUNTU_VERSION} AS jq
 ARG JQ_VERSION=1.7
 
 RUN apt update && \
@@ -12,7 +13,7 @@ RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
     mv jq /usr/local/bin && \
     jq --version
 
-FROM ${IMAGE} AS yq
+FROM ubuntu:${UBUNTU_VERSION} AS yq
 ARG YQ_VERSION=4.46.1
 RUN apt update && \
     apt install -y --no-install-recommends curl ca-certificates
@@ -23,7 +24,7 @@ RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
     mv yq /usr/local/bin && \
     yq --version
 
-FROM ${IMAGE}
+FROM ubuntu:${UBUNTU_VERSION} AS docker-ce
 COPY --from=jq /usr/local/bin/jq /usr/local/bin
 COPY --from=yq /usr/local/bin/yq /usr/local/bin
 COPY --from=ansible_roles_openvpn requirements.yml /tmp

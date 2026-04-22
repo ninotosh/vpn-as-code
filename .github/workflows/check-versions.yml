@@ -41,12 +41,6 @@ jobs:
           release: actions/cache@v5
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: conftest
-        uses: ninotosh/check-github-repo-latest-version@v1
-        with:
-          release: open-policy-agent/conftest@v0.67
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: setup-terraform
         uses: ninotosh/check-github-repo-latest-version@v1
         with:
@@ -69,12 +63,6 @@ jobs:
         uses: ninotosh/check-github-repo-latest-version@v1
         with: 
           release: hashicorp/terraform-provider-google@v7
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: cue
-        uses: ninotosh/check-github-repo-latest-version@v1
-        with: 
-          release: cue-lang/cue@v0.16
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: openvpn
