@@ -15,6 +15,12 @@
                 "ansible_roles_openvpn"
             ],
             "enabled": false
+        },
+        {
+            "matchDatasources": [
+                "docker"
+            ],
+            "pinDigests": false
         }
     ]
 }
