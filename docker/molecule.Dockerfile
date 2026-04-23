@@ -13,9 +13,7 @@ RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
     mv yq /usr/local/bin && \
     yq --version
 
-FROM ubuntu:${UBUNTU_VERSION} AS docker-ce
-COPY --from=yq /usr/local/bin/yq /usr/local/bin
-COPY --from=ansible_roles_openvpn requirements.yml /tmp
+FROM ubuntu:${UBUNTU_VERSION} AS docker-stage
 
 RUN apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
 RUN apt update && \
@@ -36,7 +34,10 @@ EOF
 RUN apt update && \
     apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-FROM docker-ce
+FROM docker-stage
+COPY --from=yq /usr/local/bin/yq /usr/local/bin
+COPY --from=ansible_roles_openvpn requirements.yml /tmp
+
 # renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
 ARG ANSIBLE_VERSION=2.20.4
 
