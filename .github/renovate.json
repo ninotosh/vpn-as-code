@@ -33,6 +33,19 @@
                 "# renovate: custom-datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)\\s(?:ENV|ARG)\\s+[A-Za-z0-9_]+?_VERSION[ =][\"']?(?<currentValue>.+?)[\"']?\\s"
             ],
             "versioningTemplate": "semver"
+        },
+        {
+            "customType": "regex",
+            "managerFilePatterns": [
+                "/(^|/)renovate\\.json5?$/"
+            ],
+            "matchStrings": [
+                "Ubuntu(?<major>\\d{2})(?<minor>\\d{2})-Readme.md"
+            ],
+            "currentValueTemplate": "{{{major}}}.{{{minor}}}",
+            "autoReplaceStringTemplate": "Ubuntu{{{replace '\\.' '' newValue}}}-Readme.md",
+            "datasourceTemplate": "github-runners",
+            "depNameTemplate": "ubuntu"
         }
     ],
     "customDatasources": {
