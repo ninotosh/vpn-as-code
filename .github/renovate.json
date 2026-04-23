@@ -36,6 +36,13 @@
         }
     ],
     "customDatasources": {
+        "github-ubuntu-ansible": {
+            "defaultRegistryUrlTemplate": "https://api.github.com/repos/actions/runner-images/contents/images/ubuntu/Ubuntu2404-Readme.md",
+            "format": "json",
+            "transformTemplates": [
+                "{\"releases\":[{\"version\": $match($base64decode(content), /- [Aa]nsible ([\\d\\.]+)/).groups[0]}]}"
+            ]
+        },
         "github-ubuntu-yq": {
             "defaultRegistryUrlTemplate": "https://api.github.com/repos/actions/runner-images/contents/images/ubuntu/Ubuntu2404-Readme.md",
             "format": "json",

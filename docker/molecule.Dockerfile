@@ -50,6 +50,8 @@ RUN apt update && \
     apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 FROM docker-ce
+# renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
+ARG ANSIBLE_VERSION=2.20.4
 
 RUN apt update && \
     apt-get install -y --no-install-recommends \
@@ -65,8 +67,8 @@ WORKDIR $HOME
 RUN python3 -m venv .venv
 ENV PATH="$HOME/.venv/bin:$PATH"
 RUN . .venv/bin/activate && \
-    python3 -m pip install molecule "molecule-plugins[docker]" ansible-lint && \
-    ansible --version | head -n 1 | grep --fixed-strings 'core 2.20.'
+    python3 -m pip install "ansible-core==${ANSIBLE_VERSION}" molecule "molecule-plugins[docker]" ansible-lint && \
+    ansible --version
 RUN echo 'PATH="$HOME/.venv/bin:$PATH"' >> $HOME/.bashrc
 RUN echo 'eval "$(_MOLECULE_COMPLETE=bash_source molecule)"' >> $HOME/.bashrc
 RUN ansible-galaxy collection install -r /tmp/requirements.yml
