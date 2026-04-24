@@ -121,7 +121,7 @@ jobs:
 
   cue-empty:
     needs: [apply-deploy, execute-ansible]
-    if: always() && needs.apply-deploy.result != 'skipped'
+    if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 2
 
