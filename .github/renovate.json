@@ -21,6 +21,15 @@
                 "docker"
             ],
             "pinDigests": false
+        },
+        {
+            "matchFileNames": [
+                "docker/*.Dockerfile"
+            ],
+            "matchDatasources": [
+                "docker"
+            ],
+            "enabled": false
         }
     ],
     "customManagers": [
