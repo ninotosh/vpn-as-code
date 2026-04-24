@@ -48,6 +48,17 @@
             "versioningTemplate": "semver"
         },
         {
+            "description": "update versions written in Ansible task files",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "ansible/**/*.yml"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)(?: extractVersion=(?<extractVersion>[^\\s]+?))?\\s+[A-Za-z0-9_]+?_version: +(?<currentValue>.+?)\\s"
+            ],
+            "versioningTemplate": "semver-coerced"
+        },
+        {
             "description": "update hard coded URLs as seen in this file",
             "customType": "regex",
             "managerFilePatterns": [
