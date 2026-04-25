@@ -8,6 +8,7 @@
     "minimumReleaseAge": "7 days",
     "packageRules": [
         {
+            "description": "stop renovate from taking a context name as an image name or a stage name",
             "matchFileNames": [
                 "docker/molecule.Dockerfile"
             ],
@@ -17,12 +18,14 @@
             "enabled": false
         },
         {
+            "description": "use the tag instead of the digest for docker images",
             "matchDatasources": [
                 "docker"
             ],
             "pinDigests": false
         },
         {
+            "description": "turn off docker data source to use another data source",
             "matchFileNames": [
                 "docker/*.Dockerfile"
             ],
@@ -34,9 +37,10 @@
     ],
     "customManagers": [
         {
+            "description": "use custom datasources in Docker files",
             "customType": "regex",
             "managerFilePatterns": [
-                "/\\.Dockerfile/"
+                "docker/*.Dockerfile"
             ],
             "matchStrings": [
                 "# renovate: custom-datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)\\s(?:ENV|ARG)\\s+[A-Za-z0-9_]+?_VERSION[ =][\"']?(?<currentValue>.+?)[\"']?\\s"
@@ -44,6 +48,7 @@
             "versioningTemplate": "semver"
         },
         {
+            "description": "update hard coded URLs as seen in this file",
             "customType": "regex",
             "managerFilePatterns": [
                 "/(^|/)renovate\\.json5?$/"
@@ -59,6 +64,7 @@
     ],
     "customDatasources": {
         "github-ubuntu-ansible": {
+            "description": "follow the Ansible version written in the document",
             "defaultRegistryUrlTemplate": "https://api.github.com/repos/actions/runner-images/contents/images/ubuntu/Ubuntu2404-Readme.md",
             "format": "json",
             "transformTemplates": [
@@ -66,6 +72,7 @@
             ]
         },
         "github-ubuntu-yq": {
+            "description": "follow the yq version written in the document",
             "defaultRegistryUrlTemplate": "https://api.github.com/repos/actions/runner-images/contents/images/ubuntu/Ubuntu2404-Readme.md",
             "format": "json",
             "transformTemplates": [
