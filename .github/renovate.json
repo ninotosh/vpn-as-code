@@ -8,6 +8,7 @@
     "minimumReleaseAge": "7 days",
     "packageRules": [
         {
+            "description": "stop renovate from taking a context name as an image name or a stage name",
             "matchFileNames": [
                 "docker/molecule.Dockerfile"
             ],
@@ -15,6 +16,79 @@
                 "ansible_roles_openvpn"
             ],
             "enabled": false
+        },
+        {
+            "description": "use the tag instead of the digest for docker images",
+            "matchDatasources": [
+                "docker"
+            ],
+            "pinDigests": false
+        },
+        {
+            "description": "turn off docker data source to use another data source",
+            "matchFileNames": [
+                "docker/*.Dockerfile"
+            ],
+            "matchDatasources": [
+                "docker"
+            ],
+            "enabled": false
         }
-    ]
+    ],
+    "customManagers": [
+        {
+            "description": "use custom datasources in Docker files",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "docker/*.Dockerfile"
+            ],
+            "matchStrings": [
+                "# renovate: custom-datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)\\s(?:ENV|ARG)\\s+[A-Za-z0-9_]+?_VERSION[ =][\"']?(?<currentValue>.+?)[\"']?\\s"
+            ],
+            "versioningTemplate": "semver"
+        },
+        {
+            "description": "update versions written in Ansible task files",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "ansible/**/*.yml"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)(?: extractVersion=(?<extractVersion>[^\\s]+?))?\\s+[A-Za-z0-9_]+?_version: +(?<currentValue>.+?)\\s"
+            ],
+            "versioningTemplate": "semver-coerced"
+        },
+        {
+            "description": "update hard coded URLs as seen in this file",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "/(^|/)renovate\\.json5?$/"
+            ],
+            "matchStrings": [
+                "Ubuntu(?<major>\\d{2})(?<minor>\\d{2})-Readme.md"
+            ],
+            "currentValueTemplate": "{{{major}}}.{{{minor}}}",
+            "autoReplaceStringTemplate": "Ubuntu{{{replace '\\.' '' newValue}}}-Readme.md",
+            "datasourceTemplate": "github-runners",
+            "depNameTemplate": "ubuntu"
+        }
+    ],
+    "customDatasources": {
+        "github-ubuntu-ansible": {
+            "description": "follow the Ansible version written in the document",
+            "defaultRegistryUrlTemplate": "https://api.github.com/repos/actions/runner-images/contents/images/ubuntu/Ubuntu2404-Readme.md",
+            "format": "json",
+            "transformTemplates": [
+                "{\"releases\":[{\"version\": $match($base64decode(content), /- [Aa]nsible ([\\d\\.]+)/).groups[0]}]}"
+            ]
+        },
+        "github-ubuntu-yq": {
+            "description": "follow the yq version written in the document",
+            "defaultRegistryUrlTemplate": "https://api.github.com/repos/actions/runner-images/contents/images/ubuntu/Ubuntu2404-Readme.md",
+            "format": "json",
+            "transformTemplates": [
+                "{\"releases\":[{\"version\": $match($base64decode(content), /- yq ([\\d\\.]+)/).groups[0]}]}"
+            ]
+        }
+    }
 }

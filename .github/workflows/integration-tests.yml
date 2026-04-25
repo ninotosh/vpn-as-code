@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/actions/cue
         with:
           data-file: tests/config-deploy.yml
@@ -115,18 +115,18 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           artifact-ids: ${{ needs.run-ansible.outputs.artifact-id }}
 
   cue-empty:
     needs: [apply-deploy, execute-ansible]
-    if: always() && needs.apply-deploy.result != 'skipped'
+    if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 2
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
 

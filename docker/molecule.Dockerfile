@@ -1,19 +1,8 @@
 # renovate: datasource=github-runners depName=ubuntu
 ARG UBUNTU_VERSION=24.04
 
-FROM ubuntu:${UBUNTU_VERSION} AS jq
-ARG JQ_VERSION=1.7
-
-RUN apt update && \
-    apt install -y --no-install-recommends curl ca-certificates
-RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
-    curl -L -o jq \
-      https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-${ARCH} && \
-    chmod +x jq && \
-    mv jq /usr/local/bin && \
-    jq --version
-
 FROM ubuntu:${UBUNTU_VERSION} AS yq
+# renovate: custom-datasource=custom.github-ubuntu-yq depName=yq
 ARG YQ_VERSION=4.46.1
 RUN apt update && \
     apt install -y --no-install-recommends curl ca-certificates
@@ -24,10 +13,7 @@ RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
     mv yq /usr/local/bin && \
     yq --version
 
-FROM ubuntu:${UBUNTU_VERSION} AS docker-ce
-COPY --from=jq /usr/local/bin/jq /usr/local/bin
-COPY --from=yq /usr/local/bin/yq /usr/local/bin
-COPY --from=ansible_roles_openvpn requirements.yml /tmp
+FROM ubuntu:${UBUNTU_VERSION} AS docker-stage
 
 RUN apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
 RUN apt update && \
@@ -48,10 +34,16 @@ EOF
 RUN apt update && \
     apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-FROM docker-ce
+FROM docker-stage
+COPY --from=yq /usr/local/bin/yq /usr/local/bin
+COPY --from=ansible_roles_openvpn requirements.yml /tmp
+
+# renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
+ARG ANSIBLE_VERSION=2.20.4
 
 RUN apt update && \
-    apt-get install -y --no-install-recommends \
+    apt install -y --no-install-recommends \
+        jq \
         # molecule
         python3-pip libssl-dev \
         # venv
@@ -64,8 +56,8 @@ WORKDIR $HOME
 RUN python3 -m venv .venv
 ENV PATH="$HOME/.venv/bin:$PATH"
 RUN . .venv/bin/activate && \
-    python3 -m pip install molecule "molecule-plugins[docker]" ansible-lint && \
-    ansible --version | head -n 1 | grep --fixed-strings 'core 2.20.'
+    python3 -m pip install "ansible-core==${ANSIBLE_VERSION}" molecule "molecule-plugins[docker]" ansible-lint && \
+    ansible --version
 RUN echo 'PATH="$HOME/.venv/bin:$PATH"' >> $HOME/.bashrc
 RUN echo 'eval "$(_MOLECULE_COMPLETE=bash_source molecule)"' >> $HOME/.bashrc
 RUN ansible-galaxy collection install -r /tmp/requirements.yml

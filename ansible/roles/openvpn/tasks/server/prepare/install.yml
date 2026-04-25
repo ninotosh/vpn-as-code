@@ -15,7 +15,8 @@
 
 - name: install openvpn
   vars:
-    openvpn_release: 2.7
+    # renovate: datasource=github-releases depName=OpenVPN/openvpn extractVersion=^v?(?<version>\d+\.\d+)
+    openvpn_version: 2.7 # without the patch version
     _arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
     architecture: "{{ 'amd64' if _arch == 'x86_64' else _arch }}"
   block:
@@ -27,7 +28,7 @@
     - name: add apt repository
       ansible.builtin.deb822_repository:
         name: openvpn
-        uris: ["https://build.openvpn.net/debian/openvpn/release/{{ openvpn_release }}"]
+        uris: ["https://build.openvpn.net/debian/openvpn/release/{{ openvpn_version }}"]
         suites: ["{{ ansible_distribution_release }}"]
         components: ["main"]
         architectures: ["{{ architecture }}"]
