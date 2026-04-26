@@ -34,7 +34,7 @@ jobs:
           RENOVATE_BASE_BRANCH_PATTERNS: ${{ github.event.inputs.base_branch_patterns == 'main' && 'main' || github.ref_name }}
           RENOVATE_DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && 'full' || null }}
           # renovate: datasource=docker depName=ghcr.io/renovatebot/renovate
-          RENOVATE_VERSION: 43.123.0
+          RENOVATE_VERSION: 43.141.5
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
           configurationFile: .github/renovate-global.json
