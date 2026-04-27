@@ -98,6 +98,8 @@ jobs:
         run: |
           ansible-galaxy collection install -r requirements.yml
           molecule test
+        env:
+          MOLECULE_TFOUT_PATH: files/ipv4-only-tfout.json
         working-directory: ansible/roles/openvpn
 
   conclude:
