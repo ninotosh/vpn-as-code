@@ -120,8 +120,8 @@ jobs:
           artifact-ids: ${{ needs.run-ansible.outputs.artifact-id }}
 
   cue-empty:
-    needs: [apply-deploy, execute-ansible]
-    if: always()
+    needs: [start, apply-deploy, execute-ansible]
+    if: always() && needs.start.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 2
 
