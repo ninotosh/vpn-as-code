@@ -155,25 +155,39 @@ On the host,
 
 # tests in GitHub Actions
 
-Tests are run in repositories whose names end with `-dev`.
-See the workflow files for details.
-
 ## unit tests
 
-Open a pull request to run the [unit tests](/.github/workflows/unit-tests.yml).
+Some unit tests are automatically run when pull requests are opened.
+
+To run Molecule tests,
+
+1. open a pull request
+1. comment as follows
+
+| comment | `certificate` role | `openvpn` role |
+|---:|:---:|:---:|
+| `/molecule all` | ✅ | ✅ |
+| `/molecule certificate` | ✅ | ❌ |
+| `/molecule openvpn` | ❌ | ✅ |
+
 
 ## integration tests
 
+> [!IMPORTANT]  
+> Integration tests are written to run only in private repositories.
+
 To run the [integration tests](/.github/workflows/integration-tests.yml),
-open a pull request and comment either `/it full`, `/it deploy`, or `/it empty`
-on the pull request page.
 
-|  | deploy servers | run Ansible | clean up servers |config file|
+1. set the `HCP_TERRAFORM_TEAM_TOKEN` secret as for server deployment
+1. prepare config files
+1. open a pull request
+1. comment as follows
+
+| comment | deploy servers | run Ansible | clean up servers |config file|
 |---:|:---:|:---:|:---:|---|
-| `full` | ✅ | ✅ | ✅ |`tests/config-deploy.yml`|
-| `deploy` | ✅ | ❌ | ✅ |`tests/config-deploy.yml`|
-| `empty` | ❌ | ❌ | ✅ |`tests/config-empty.yml`|
-
+| `/it full` | ✅ | ✅ | ✅ |`tests/config-deploy.yml`|
+| `/it deploy` | ✅ | ❌ | ✅ |`tests/config-deploy.yml`|
+| `/it empty` | ❌ | ❌ | ✅ |`tests/config-empty.yml`|
 
 > [!NOTE]  
 > Test config files under `tests/` are not included in the public template repository
@@ -182,7 +196,10 @@ on the pull request page.
 
 # dependency update
 
-[`renovatebot/github-action`](https://github.com/renovatebot/github-action)
+> [!IMPORTANT]  
+> This is written to run only in private repositories.
+
+[`Renovate`](/.github/workflows/renovate.yml)
 is scheduled to automatically make pull requests to update dependencies.
 
 1. [create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) with these scopes:
