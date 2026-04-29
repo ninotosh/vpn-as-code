@@ -25,7 +25,7 @@
             "pinDigests": false
         },
         {
-            "description": "turn off docker data source to use another data source",
+            "description": "turn off docker data source to follow GitHub Actions runner images",
             "matchFileNames": [
                 "docker/*.Dockerfile"
             ],
