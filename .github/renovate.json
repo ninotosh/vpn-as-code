@@ -59,6 +59,50 @@
             "versioningTemplate": "semver-coerced"
         },
         {
+            "description": "update Ubuntu as a VPN server OS - dot separated",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "README.md",
+                "ansible/**/molecule.yml"
+            ],
+            "matchStrings": [
+                "\\sUbuntu (?<currentValue>.+?)\\s+<!-- renovate -->\\n",
+                "\\simage: ubuntu:(?<currentValue>.+?)\\s+# renovate\\n"
+            ],
+            "datasourceTemplate": "docker",
+            "depNameTemplate": "ubuntu"
+        },
+        {
+            "description": "update Ubuntu as a VPN server OS - underscore separated",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "ansible/**/molecule/**/config.yml",
+                "config-example.yml"
+            ],
+            "matchStrings": [
+                "blueprint_id: ubuntu_(?<major>\\d{2})_(?<minor>\\d{2})\\s+# renovate"
+            ],
+            "currentValueTemplate": "{{{major}}}.{{{minor}}}",
+            "autoReplaceStringTemplate": "blueprint_id: ubuntu_{{{replace '\\.' '_' newValue}}} # renovate",
+            "datasourceTemplate": "docker",
+            "depNameTemplate": "ubuntu"
+        },
+        {
+            "description": "update Ubuntu as a VPN server OS - not separated",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "ansible/**/molecule/**/config.yml",
+                "config-example.yml"
+            ],
+            "matchStrings": [
+                "family: ubuntu-(?<major>\\d{2})(?<minor>\\d{2})-lts-amd64\\s+# renovate"
+            ],
+            "currentValueTemplate": "{{{major}}}.{{{minor}}}",
+            "autoReplaceStringTemplate": "family: ubuntu-{{{replace '\\.' '' newValue}}}-lts-amd64 # renovate",
+            "datasourceTemplate": "docker",
+            "depNameTemplate": "ubuntu"
+        },
+        {
             "description": "update hard coded URLs as seen in this file",
             "customType": "regex",
             "managerFilePatterns": [
