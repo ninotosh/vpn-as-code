@@ -19,7 +19,7 @@ on:
 
 jobs:
   renovate:
-    if: ${{ !github.event.repository.is_template }}
+    if: github.repository_visibility == 'private'
     runs-on: ubuntu-24.04
     timeout-minutes: 4
 

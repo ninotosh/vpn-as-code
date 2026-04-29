@@ -7,8 +7,7 @@ on:
 jobs:
   start:
     if: >
-      !github.event.repository.is_template &&
-      github.event.issue.pull_request &&
+      github.event_name == 'issue_comment' &&
       startsWith(github.event.comment.body, '/molecule ') &&
       github.event.comment.author_association == 'OWNER'
     runs-on: ubuntu-24.04
