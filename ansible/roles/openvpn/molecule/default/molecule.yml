@@ -7,7 +7,7 @@ driver:
   name: docker
 platforms:
   - name: instance0
-    image: ubuntu:24.04
+    image: ubuntu:24.04 # renovate
     capabilities:
       - NET_ADMIN
     default_host_ip: ''
@@ -20,7 +20,7 @@ platforms:
       net.ipv6.conf.all.disable_ipv6: 0
       net.ipv6.conf.all.forwarding: 1
   - name: instance1
-    image: ubuntu:24.04
+    image: ubuntu:24.04 # renovate
     capabilities:
       - NET_ADMIN
     default_host_ip: ''
@@ -41,7 +41,7 @@ provisioner:
     - --extra-vars=download_dir=/tmp/download
   env:
     CONFIG: files/config.yml
-    TERRAFORM_OUTPUT_PATH: files/tfout.json
+    TERRAFORM_OUTPUT_PATH: ${MOLECULE_TFOUT_PATH:-files/tfout.json}
     ANSIBLE_ROLES_PATH: ../../../ # https://github.com/ansible/molecule/issues/4391
 verifier:
   name: ansible

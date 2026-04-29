@@ -1,7 +1,7 @@
 name: renovate
 on:
   schedule:
-    - cron: '10 3 * * *'
+    - cron: '10 1 * * *'
   workflow_dispatch:
     inputs:
       base_branch_patterns:
@@ -19,14 +19,14 @@ on:
 
 jobs:
   renovate:
-    if: ${{ !github.event.repository.is_template }}
+    if: github.repository_visibility == 'private'
     runs-on: ubuntu-24.04
-    timeout-minutes: 2
+    timeout-minutes: 4
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - uses: renovatebot/github-action@eb932558ad942cccfd8211cf535f17ff183a9f74 # v46.1.9
+      - uses: renovatebot/github-action@83ec54fee49ab67d9cd201084c1ff325b4b462e4 # v46.1.10
         env:
           LOG_LEVEL: debug
           RENOVATE_PRINT_CONFIG: true
@@ -34,7 +34,7 @@ jobs:
           RENOVATE_BASE_BRANCH_PATTERNS: ${{ github.event.inputs.base_branch_patterns == 'main' && 'main' || github.ref_name }}
           RENOVATE_DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && 'full' || null }}
           # renovate: datasource=docker depName=ghcr.io/renovatebot/renovate
-          RENOVATE_VERSION: 43.123.0
+          RENOVATE_VERSION: 43.141.5
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
           configurationFile: .github/renovate-global.json

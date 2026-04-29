@@ -3,7 +3,7 @@ ARG UBUNTU_VERSION=24.04
 
 FROM ubuntu:${UBUNTU_VERSION} AS yq
 # renovate: custom-datasource=custom.github-ubuntu-yq depName=yq
-ARG YQ_VERSION=4.46.1
+ARG YQ_VERSION=4.52.5
 RUN apt update && \
     apt install -y --no-install-recommends curl ca-certificates
 RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
@@ -15,7 +15,7 @@ RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
 
 FROM ubuntu:${UBUNTU_VERSION} AS terraform
 # renovate: datasource=github-releases depName=hashicorp/terraform
-ARG TERRAFORM_VERSION=1.14.8
+ARG TERRAFORM_VERSION=1.14.9
 RUN apt update && \
     apt install -y --no-install-recommends curl ca-certificates unzip
 RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
