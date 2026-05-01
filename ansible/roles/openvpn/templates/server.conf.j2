@@ -20,7 +20,6 @@ tcp-nodelay
 server {{ masquerade_ipv4_network }} {{ masquerade_ipv4_netmask }}
 push "redirect-gateway def1 bypass-dhcp"
 keepalive 10 120
-dh none
 tls-crypt-v2 {{ openvpn_server_tls_crypt_v2 }}
 cipher AES-256-GCM
 auth SHA256
