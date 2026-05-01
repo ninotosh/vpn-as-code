@@ -1,9 +1,5 @@
 # development
 
-> [!TIP]  
-> to start over by cleaning up files, run
-> `git check-ignore -- **/* **/.* | xargs --interactive -I {} rm -r {}`
-
 ## with external servers
 
 > [!WARNING]  
@@ -14,7 +10,7 @@
 #### generate an SSH key pair
 
 On the GitHub Actions page, run [keygen.yml](/.github/workflows/keygen.yml) and download the key pair,
-or run the same commands on the host machine.
+or run the same commands on your computer.
 
 ### [Terraform](/terraform)
 
@@ -33,15 +29,15 @@ docker compose -f docker/compose.yaml run --rm --name terraform-bash terraform-b
 In the container, run the same commands as in [apply.yml](/.github/workflows/apply.yml)
 
 > [!NOTE]  
+> for the `hashicorp/setup-terraform` action, run `terraform login` with a team API token
+
+> [!NOTE]  
 > put the content of the public key in `SSH_PUBLIC_KEY`
 
 > [!TIP]  
 > to use another config file instead of `config.yml` in the top directory,
 > run `make` with `CONFIG=` like
 > `make CONFIG=/path/to/config.yml target-name` 
-
-> [!NOTE]  
-> for the `hashicorp/setup-terraform` action, run `terraform login` with a team API token
 
 > [!TIP]  
 > to remove automatically generated files, run `make clean`
@@ -74,7 +70,7 @@ docker cp /tmp/tfout.json molecule-bash:/tmp
 ```
 
 ```
-docker cp ${path_to_ssh_private_key} molecule-bash:/root/ssh_key
+docker cp /path/to/ssh_private_key molecule-bash:/root/ssh_key
 ```
 
 #### run `ansible-playbook`
@@ -85,11 +81,11 @@ In the `molecule-bash` container, run `ansible-playbook` as in [ansible.yml](/.g
 > All the necessary environment variables are already set in the container.
 
 > [!TIP]  
-> to log in to the server with `ssh`, run `ssh -i ${path_to_ssh_private_key} -l ubuntu ${server_ip_address}`
+> to log in to the server with `ssh`, run `ssh -i ${SSH_PRIVATE_KEY_PATH} -l ubuntu __put_server_ip_address_here__`
 
 > [!NOTE]  
-> Installing `openvpn-dco-dkms` may fail due to insufficient memory.
-> However, the OpenVPN server can work without this module.
+> Installing `openvpn-dco-dkms` may fail if the memory is insufficient.
+> However, the Ansible run will move on and the OpenVPN server can work without this module.
 
 
 #### establish a VPN connection
@@ -132,21 +128,25 @@ In the container,
 
 On the host,
 
-1. edit `ansible/client0.ovpn` to make a diff like
+1. in `ansible/client0.ovpn`, delete `<connection>...</connection>` except one,
+and change the host and the port as follows.
 
-```diff
-< remote fe80::fff0 53 udp
-< remote instance0 53 udp
-< remote fe80::fff0 443 tcp
-< remote instance0 443 tcp
----
-> remote ::1 5300 udp
-> remote 127.0.0.1 5300 udp
-> remote ::1 4430 tcp
-> remote 127.0.0.1 4430 tcp
-```
+| |before|after|
+|---|---|---|
+|host|`fe80::fff0`|_see below_|
+|host|`instance0`|`127.0.0.1`|
+|port|`53`|`5300`|
+|port|`443`|`4430`|
 
-2. establish a VPN connection with it
+A new IPv6 address can be
+- a link-local address such as `fe80::1` and `fe80::1%lo0`
+- one of the addresses returned from
+`docker inspect -f '{{range .NetworkSettings.Networks}}{{.GlobalIPv6Address}}{{end}}' instance0`
+
+> [!NOTE]  
+> The port forwarding for IPv6 + UDP may not work with Docker Desktop for Mac.
+
+2. establish a VPN connection using the new `ovpn` file
 
 > [!NOTE]  
 > This is only for testing connectivity from the host as a client to the container as a server.
