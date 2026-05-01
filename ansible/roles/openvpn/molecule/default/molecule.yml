@@ -14,8 +14,10 @@ platforms:
     devices:
       - /dev/net/tun
     published_ports:
-      - '4430:443'
-      - '5300:53/udp'
+      - '0.0.0.0:4430:443'
+      - '0.0.0.0:5300:53/udp'
+      - '[::]:4430:443'
+      - '[::]:5300:53/udp'
     sysctls:
       net.ipv6.conf.all.disable_ipv6: 0
       net.ipv6.conf.all.forwarding: 1
@@ -27,8 +29,8 @@ platforms:
     devices:
       - /dev/net/tun
     published_ports:
-      - '4431:443'
-      - '5301:53/udp'
+      - '0.0.0.0:4431:443'
+      - '0.0.0.0:5301:53/udp'
     sysctls:
       net.ipv6.conf.all.disable_ipv6: 0
       net.ipv6.conf.all.forwarding: 1

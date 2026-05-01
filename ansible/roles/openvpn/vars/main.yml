@@ -8,7 +8,6 @@ openvpn_server_key: "{{ openvpn_server_key_dir }}/server.key"
 openvpn_client_fingerprint_path_format: "{{ openvpn_client_dir }}/%s-fp.txt"
 openvpn_server_fingerprint: "{{ openvpn_server_dir }}/fingerprint.txt"
 
-masquerade_ipv4_network_tcp: "10.8.0.0"
-masquerade_ipv4_network_udp: "10.8.1.0"
+masquerade_ipv4_network: "10.8.0.0"
 masquerade_ipv4_netmask: "255.255.255.0"
 masquerade_ipv4_prefix: "24"
