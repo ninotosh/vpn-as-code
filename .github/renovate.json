@@ -5,7 +5,7 @@
         "customManagers:dockerfileVersions",
         "customManagers:githubActionsVersions"
     ],
-    "minimumReleaseAge": "7 days",
+    "minimumReleaseAge": "5 days",
     "packageRules": [
         {
             "description": "stop renovate from taking a context name as an image name or a stage name",
