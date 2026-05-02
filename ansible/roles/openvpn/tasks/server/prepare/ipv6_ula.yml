@@ -23,7 +23,7 @@
 - name: set IPv6 ULA network
   vars:
     system_instantiation_time: "{{ journalctl_list_boots_result.stdout if which_journalctl_result is succeeded else stat_proc_1_result.stdout }}"
-    ipv6_ula_global_id: "{{ ((system_instantiation_time + ansible_default_ipv6.macaddress) | hash('sha1'))[-10:] }}"
+    ipv6_ula_global_id: "{{ ((system_instantiation_time + ansible_facts['default_ipv6']['macaddress']) | hash('sha1'))[-10:] }}"
     ipv6_ula_global_network: "{{ ('fd' + ipv6_ula_global_id) | batch(4) | map('join') | join(':') }}"
     ipv6_ula_subnet_id: "{{ (inventory_hostname | hash('sha1'))[-4:] }}"
   block:

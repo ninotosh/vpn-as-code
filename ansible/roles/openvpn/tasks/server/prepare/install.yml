@@ -3,7 +3,7 @@
   ansible.builtin.assert:
     quiet: true
     that:
-      - ansible_facts.pkg_mgr == 'apt'
+      - ansible_facts['pkg_mgr'] == 'apt'
 
 - name: install packages to use apt repositories
   ansible.builtin.apt:
@@ -17,7 +17,7 @@
   vars:
     # renovate: datasource=github-releases depName=OpenVPN/openvpn extractVersion=^v?(?<version>\d+\.\d+)
     openvpn_version: 2.7 # without the patch version
-    _arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
+    _arch: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else ansible_facts['architecture'] }}"
     architecture: "{{ 'amd64' if _arch == 'x86_64' else _arch }}"
   block:
     - name: install python3-debian for 'deb822_repository'
@@ -29,7 +29,7 @@
       ansible.builtin.deb822_repository:
         name: openvpn
         uris: ["https://build.openvpn.net/debian/openvpn/release/{{ openvpn_version }}"]
-        suites: ["{{ ansible_distribution_release }}"]
+        suites: ["{{ ansible_facts['distribution_release'] }}"]
         components: ["main"]
         architectures: ["{{ architecture }}"]
         signed_by: https://swupdate.openvpn.net/repos/repo-public.gpg
@@ -46,7 +46,7 @@
     - name: install openvpn-dco-dkms
       ansible.builtin.apt:
         name: openvpn-dco-dkms
-      when: ansible_facts.memtotal_mb >= 900
+      when: ansible_facts['memtotal_mb'] >= 900
       ignore_errors: true # may fail on small RAM
 
 - name: create server key directory
