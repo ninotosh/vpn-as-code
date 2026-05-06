@@ -1,11 +1,6 @@
 - name: restart systemd openvpn
-  loop:
-    - server-tcp
-    - server-udp
-  loop_control:
-    loop_var: conf_name
   ansible.builtin.systemd_service:
-    name: "openvpn-server@{{ conf_name }}"
+    name: openvpn-server@server
     state: restarted
 
 - name: reload openvpn

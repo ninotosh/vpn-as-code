@@ -8,19 +8,9 @@
 
 - name: run server with systemd
   # https://community.openvpn.net/openvpn/wiki/Systemd
-  when: ansible_facts.service_mgr == 'systemd'
+  when: ansible_facts['service_mgr'] == 'systemd'
   ansible.builtin.include_tasks: systemd.yml
-  loop:
-    - server-tcp
-    - server-udp
-  loop_control:
-    loop_var: conf_name
 
 - name: run server with sysvinit
-  when: ansible_facts.service_mgr == 'sysvinit'
+  when: ansible_facts['service_mgr'] == 'sysvinit'
   ansible.builtin.include_tasks: sysvinit.yml
-  loop:
-    - server-tcp
-    - server-udp
-  loop_control:
-    loop_var: conf_name

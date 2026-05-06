@@ -1,11 +1,8 @@
 - name: import system tasks
   ansible.builtin.import_tasks: system.yml
 
-- name: import resolved tasks
-  ansible.builtin.import_tasks: resolved.yml
-
 - name: update package cache
-  action: "{{ ansible_pkg_mgr }} update_cache=yes"
+  action: "{{ ansible_facts['pkg_mgr'] }} update_cache=yes"
   changed_when: false
 
 - name: import ipv6_ula tasks

@@ -1,7 +1,7 @@
 - name: template server conf
   ansible.builtin.template:
-    src: "{{ conf_name }}.conf.j2"
-    dest: "{{ openvpn_dir }}/{{ conf_name }}.conf"
+    src: server.conf.j2
+    dest: "{{ openvpn_dir }}/server.conf"
     mode: u=rw,g=r,o=r
   notify:
     - reload openvpn

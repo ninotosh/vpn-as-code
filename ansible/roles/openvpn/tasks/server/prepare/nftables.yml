@@ -33,7 +33,7 @@
   changed_when: nft_list_ruleset_before_result.stdout != nft_list_ruleset_after_result.stdout
 
 - name: enable nftables service
-  when: ansible_facts.service_mgr == 'systemd'
+  when: ansible_facts['service_mgr'] == 'systemd'
   ansible.builtin.service:
     name: nftables.service
     enabled: true
