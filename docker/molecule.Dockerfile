@@ -36,14 +36,13 @@ RUN apt update && \
 
 FROM docker-stage
 COPY --from=yq /usr/local/bin/yq /usr/local/bin
-COPY --from=ansible_roles_openvpn requirements.yml /tmp
 
 # renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
 ARG ANSIBLE_VERSION=2.20.4
 
 RUN apt update && \
     apt install -y --no-install-recommends \
-        jq \
+        jq python3 \
         # molecule
         python3-pip libssl-dev \
         # venv
@@ -60,4 +59,3 @@ RUN . .venv/bin/activate && \
     ansible --version
 RUN echo 'PATH="$HOME/.venv/bin:$PATH"' >> $HOME/.bashrc
 RUN echo 'eval "$(_MOLECULE_COMPLETE=bash_source molecule)"' >> $HOME/.bashrc
-RUN ansible-galaxy collection install -r /tmp/requirements.yml

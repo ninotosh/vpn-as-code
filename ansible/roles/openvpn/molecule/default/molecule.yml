@@ -47,3 +47,4 @@ provisioner:
     ANSIBLE_ROLES_PATH: ../../../ # https://github.com/ansible/molecule/issues/4391
 verifier:
   name: ansible
+role_name_check: 1

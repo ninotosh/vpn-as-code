@@ -1,0 +1,20 @@
+- name: Install iproute2
+  ansible.builtin.apt:
+    name: iproute2 # to gather facts
+    update_cache: true
+
+- name: Gather default_ip* facts
+  ansible.builtin.setup:
+    gather_subset:
+      - default_ipv4
+      - default_ipv6
+
+- name: Import system tasks
+  ansible.builtin.import_tasks: system.yml
+
+- name: Import ipv6_ula tasks
+  when: external_ipv6_address | default("", true) | length > 0
+  ansible.builtin.import_tasks: ipv6_ula.yml
+
+- name: Import nftables tasks
+  ansible.builtin.import_tasks: nftables.yml

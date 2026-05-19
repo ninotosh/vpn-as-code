@@ -1,0 +1,30 @@
+- name: Check for journalctl
+  ansible.builtin.command:
+    cmd: which journalctl
+  register: _network_which_journalctl
+  changed_when: false
+  ignore_errors: true
+
+- name: Get the first boot time
+  when: _network_which_journalctl is succeeded
+  ansible.builtin.shell:
+    cmd: journalctl --list-boots | head -n 1 | cut -d ' ' -f 5-6
+  register: _network_journalctl_list_boots
+  changed_when: false
+
+- name: Get status of /proc/1
+  # must be a container
+  when: _network_which_journalctl is failed
+  ansible.builtin.command:
+    cmd: stat -c %Y /proc/1/cmdline
+  register: _network_stat_proc_1
+  changed_when: false
+
+- name: Set IPv6 ULA network
+  vars:
+    system_instantiation_time: "{{ _network_journalctl_list_boots.stdout if _network_which_journalctl is succeeded else _network_stat_proc_1.stdout }}"
+    ipv6_ula_global_id: "{{ ((system_instantiation_time | string + ansible_facts['default_ipv6']['macaddress']) | hash('sha1'))[-10:] }}"
+    ipv6_ula_global_network: "{{ ('fd' + ipv6_ula_global_id) | batch(4) | map('join') | join(':') }}"
+    ipv6_ula_subnet_id: "{{ (inventory_hostname | hash('sha1'))[-4:] }}"
+  ansible.builtin.set_fact:
+    network_ipv6_ula_network: "{{ ipv6_ula_global_network }}:{{ ipv6_ula_subnet_id }}::/64"

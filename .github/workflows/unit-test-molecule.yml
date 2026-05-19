@@ -82,10 +82,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: install molecule
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libffi-dev
-          python3 -m pip install molecule "molecule-plugins[docker]"
+        run: python3 -m pip install "ansible-core==${ANSIBLE_VERSION}" molecule "molecule-plugins[docker]"
+        env:
+          # renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
+          ANSIBLE_VERSION: 2.20.4
 
       - if: fromJSON(needs.start.outputs.run-certificate)
         name: test roles/certificate
@@ -94,9 +94,7 @@ jobs:
 
       - if: fromJSON(needs.start.outputs.run-openvpn)
         name: test roles/openvpn
-        run: |
-          ansible-galaxy collection install -r requirements.yml
-          molecule test
+        run: molecule test
         env:
           MOLECULE_TFOUT_PATH: files/ipv4-only-tfout.json
         working-directory: ansible/roles/openvpn

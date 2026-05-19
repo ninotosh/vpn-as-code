@@ -8,16 +8,6 @@
     "minimumReleaseAge": "5 days",
     "packageRules": [
         {
-            "description": "stop renovate from taking a context name as an image name or a stage name",
-            "matchFileNames": [
-                "docker/molecule.Dockerfile"
-            ],
-            "matchPackageNames": [
-                "ansible_roles_openvpn"
-            ],
-            "enabled": false
-        },
-        {
             "description": "use the tag instead of the digest for docker images",
             "matchDatasources": [
                 "docker"
@@ -40,7 +30,8 @@
             "description": "use custom datasources in Docker files",
             "customType": "regex",
             "managerFilePatterns": [
-                "docker/*.Dockerfile"
+                "docker/*.Dockerfile",
+                ".github/workflows/unit-test-molecule.yml"
             ],
             "matchStrings": [
                 "# renovate: custom-datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)\\s(?:ENV|ARG)\\s+[A-Za-z0-9_]+?_VERSION[ =][\"']?(?<currentValue>.+?)[\"']?\\s"
