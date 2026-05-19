@@ -1,17 +1,3 @@
-- name: import system tasks
-  ansible.builtin.import_tasks: system.yml
-
-- name: update package cache
-  action: "{{ ansible_facts['pkg_mgr'] }} update_cache=yes"
-  changed_when: false
-
-- name: import ipv6_ula tasks
-  when: external_ipv6_address | default("", true) | length > 0
-  ansible.builtin.import_tasks: ipv6_ula.yml
-
-- name: import nftables tasks
-  ansible.builtin.import_tasks: nftables.yml
-
 - name: import install tasks
   ansible.builtin.import_tasks: install.yml
 

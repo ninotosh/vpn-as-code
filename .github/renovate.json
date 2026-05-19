@@ -30,7 +30,8 @@
             "description": "use custom datasources in Docker files",
             "customType": "regex",
             "managerFilePatterns": [
-                "docker/*.Dockerfile"
+                "docker/*.Dockerfile",
+                ".github/workflows/unit-test-molecule.yml"
             ],
             "matchStrings": [
                 "# renovate: custom-datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)\\s(?:ENV|ARG)\\s+[A-Za-z0-9_]+?_VERSION[ =][\"']?(?<currentValue>.+?)[\"']?\\s"

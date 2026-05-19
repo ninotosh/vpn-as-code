@@ -9,7 +9,7 @@ key {{ openvpn_server_key }}
 {% if external_ipv6_address %}
 local {{ ansible_facts['default_ipv6']['address'] }} 443 tcp6-server
 local {{ ansible_facts['default_ipv6']['address'] }} 53 udp6
-server-ipv6 {{ ipv6_ula_network }}
+server-ipv6 {{ network_ipv6_ula_network }}
 push "redirect-gateway ipv6"
 push "dns server 0 address 2606:4700:4700::1111 2001:4860:4860::8888"
 {% endif %}

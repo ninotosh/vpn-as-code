@@ -33,6 +33,6 @@ jobs:
       - name: install ansible-lint
         run: |
           python3 -m pip install ansible-lint
-          ansible-galaxy collection install -r roles/openvpn/requirements.yml
+          ansible-galaxy collection install -r roles/network/requirements.yml
 
       - run: ansible-lint
