@@ -23,6 +23,20 @@
                 "docker"
             ],
             "enabled": false
+        },
+        {
+            "description": "exceptionally make PRs for versions without a release timestamp",
+            "matchDatasources": [
+                "custom.github-ubuntu-ansible",
+                "custom.github-ubuntu-yq",
+                "docker"
+            ],
+            "matchDepNames": [
+                "ansible",
+                "yq",
+                "ghcr.io/renovatebot/renovate"
+            ],
+            "minimumReleaseAgeBehaviour": "timestamp-optional"
         }
     ],
     "customManagers": [
