@@ -23,18 +23,33 @@
                 "docker"
             ],
             "enabled": false
+        },
+        {
+            "description": "exceptionally make PRs for versions without a release timestamp",
+            "matchDatasources": [
+                "custom.github-ubuntu-ansible",
+                "custom.github-ubuntu-yq",
+                "docker"
+            ],
+            "matchDepNames": [
+                "ansible",
+                "yq",
+                "ghcr.io/renovatebot/renovate"
+            ],
+            "minimumReleaseAgeBehaviour": "timestamp-optional"
         }
     ],
     "customManagers": [
         {
-            "description": "use custom datasources in Docker files",
+            "description": "use custom datasources in Docker files and unit-test-molecule.yml",
             "customType": "regex",
             "managerFilePatterns": [
                 "docker/*.Dockerfile",
                 ".github/workflows/unit-test-molecule.yml"
             ],
             "matchStrings": [
-                "# renovate: custom-datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)\\s(?:ENV|ARG)\\s+[A-Za-z0-9_]+?_VERSION[ =][\"']?(?<currentValue>.+?)[\"']?\\s"
+                "# renovate: custom-datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)\\s(?:ENV|ARG)\\s+[A-Za-z0-9_]+?_VERSION[ =][\"']?(?<currentValue>.+?)[\"']?\\s",
+                "# renovate: custom-datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)\\s+[A-Za-z0-9_]+?_VERSION: (?<currentValue>.+?)[\"']?\\s"
             ],
             "versioningTemplate": "semver"
         },
