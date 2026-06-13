@@ -38,7 +38,7 @@ FROM docker-stage
 COPY --from=yq /usr/local/bin/yq /usr/local/bin
 
 # renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
-ARG ANSIBLE_VERSION=2.20.5
+ARG ANSIBLE_VERSION=2.21.0
 
 RUN apt update && \
     apt install -y --no-install-recommends \
