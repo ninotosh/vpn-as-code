@@ -3,7 +3,7 @@ ARG UBUNTU_VERSION=24.04
 
 FROM ubuntu:${UBUNTU_VERSION} AS yq
 # renovate: custom-datasource=custom.github-ubuntu-yq depName=yq
-ARG YQ_VERSION=4.53.2
+ARG YQ_VERSION=4.53.3
 RUN apt update && \
     apt install -y --no-install-recommends curl ca-certificates
 RUN ARCH="$(uname -m | sed 's/aarch64/arm64/; s/x86_64/amd64/')" && \
