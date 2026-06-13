@@ -79,13 +79,13 @@ jobs:
         working-directory: ansible
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: install molecule
         run: python3 -m pip install "ansible-core==${ANSIBLE_VERSION}" molecule "molecule-plugins[docker]"
         env:
           # renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
-          ANSIBLE_VERSION: 2.20.5
+          ANSIBLE_VERSION: 2.21.0
 
       - if: fromJSON(needs.start.outputs.run-certificate)
         name: test roles/certificate
