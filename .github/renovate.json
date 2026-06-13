@@ -28,13 +28,11 @@
             "description": "exceptionally make PRs for versions without a release timestamp",
             "matchDatasources": [
                 "custom.github-ubuntu-ansible",
-                "custom.github-ubuntu-yq",
-                "docker"
+                "custom.github-ubuntu-yq"
             ],
             "matchDepNames": [
                 "ansible",
-                "yq",
-                "ghcr.io/renovatebot/renovate"
+                "yq"
             ],
             "minimumReleaseAgeBehaviour": "timestamp-optional"
         }
