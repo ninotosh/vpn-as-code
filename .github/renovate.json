@@ -8,6 +8,16 @@
     "minimumReleaseAge": "5 days",
     "packageRules": [
         {
+            "description": "stop renovate from taking a context name as an image name or a stage name",
+            "matchFileNames": [
+                "docker/molecule.Dockerfile"
+            ],
+            "matchPackageNames": [
+                "ansible_roles_wireguard"
+            ],
+            "enabled": false
+        },
+        {
             "description": "use the tag instead of the digest for docker images",
             "matchDatasources": [
                 "docker"

@@ -1,0 +1,2 @@
+wireguard_dir: /etc/wireguard
+wireguard_key_dir: "{{ wireguard_dir }}/keys"

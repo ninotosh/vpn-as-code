@@ -1,0 +1,19 @@
+[Interface]
+PrivateKey = {{ wireguard_server.private_key }}
+ListenPort = 53
+
+Address = {{ wireguard_server.cidr_ipv4 }}
+{% if wireguard_server.cidr_ipv6 | length > 0 %}
+Address = {{ wireguard_server.cidr_ipv6 }}
+{% endif %}
+{% for name, peer in wireguard_peers.items() %}
+
+# {{ name }}
+[Peer]
+PublicKey = {{ peer.public_key }}
+PresharedKey = {{ peer.preshared_key }}
+AllowedIPs = {{ peer.ipv4_address }}/32
+{% if peer.cidr_ipv6 | length > 0 %}
+AllowedIPs = {{ peer.ipv6_address }}/128
+{% endif %}
+{% endfor %}

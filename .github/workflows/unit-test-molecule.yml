@@ -16,6 +16,7 @@ jobs:
       check-id: ${{ steps.create-check.outputs.result }}
       run-certificate: ${{ steps.targets.outputs.certificate }}
       run-openvpn: ${{ steps.targets.outputs.openvpn }}
+      run-wireguard: ${{ steps.targets.outputs.wireguard }}
 
     steps:
       - id: targets
@@ -27,16 +28,25 @@ jobs:
             all)
               echo "certificate=true" >> $GITHUB_OUTPUT
               echo "openvpn=true" >> $GITHUB_OUTPUT
+              echo "wireguard=true" >> $GITHUB_OUTPUT
               ;;
             certificate)
               echo "certificate=true" >> $GITHUB_OUTPUT
               echo "openvpn=false" >> $GITHUB_OUTPUT
+              echo "wireguard=false" >> $GITHUB_OUTPUT
               ;;
             openvpn)
               echo "certificate=false" >> $GITHUB_OUTPUT
               echo "openvpn=true" >> $GITHUB_OUTPUT
+              echo "wireguard=false" >> $GITHUB_OUTPUT
+              ;;
+            wireguard)
+              echo "certificate=false" >> $GITHUB_OUTPUT
+              echo "openvpn=false" >> $GITHUB_OUTPUT
+              echo "wireguard=true" >> $GITHUB_OUTPUT
               ;;
             *)
+              echo 'invalid argument' >> $GITHUB_STEP_SUMMARY
               false
               ;;
           esac
@@ -98,6 +108,13 @@ jobs:
         env:
           MOLECULE_TFOUT_PATH: files/ipv4-only-tfout.json
         working-directory: ansible/roles/openvpn
+
+      - if: fromJSON(needs.start.outputs.run-wireguard)
+        name: test roles/wireguard
+        run: molecule test
+        env:
+          MOLECULE_TFOUT_PATH: files/ipv4-only-tfout.json
+        working-directory: ansible/roles/wireguard
 
   conclude:
     needs: [start, molecule]

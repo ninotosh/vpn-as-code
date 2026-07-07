@@ -36,6 +36,7 @@ RUN apt update && \
 
 FROM docker-stage
 COPY --from=yq /usr/local/bin/yq /usr/local/bin
+COPY --from=ansible_roles_wireguard requirements.txt /tmp
 
 # renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
 ARG ANSIBLE_VERSION=2.21.0
@@ -56,6 +57,7 @@ RUN python3 -m venv .venv
 ENV PATH="$HOME/.venv/bin:$PATH"
 RUN . .venv/bin/activate && \
     python3 -m pip install "ansible-core==${ANSIBLE_VERSION}" molecule "molecule-plugins[docker]" ansible-lint && \
+    python3 -m pip install -r /tmp/requirements.txt && \
     ansible --version
 RUN echo 'PATH="$HOME/.venv/bin:$PATH"' >> $HOME/.bashrc
 RUN echo 'eval "$(_MOLECULE_COMPLETE=bash_source molecule)"' >> $HOME/.bashrc

@@ -1,0 +1,6 @@
+- name: Fetch the client conf
+  ansible.builtin.fetch:
+    src: "{{ wireguard_dir }}/{{ client_name }}.conf"
+    dest: "{{ fetch_dest_dir }}/"
+    flat: true
+    fail_on_missing: false

@@ -28,15 +28,3 @@ remote {{ external_ipv6_address }} 443 tcp
 proto tcp4-client
 remote {{ ansible_host }} 443 tcp
 </connection>
-
-<connection>
-proto udp4
-remote {{ ansible_host }} 53 udp
-</connection>
-
-{% if external_ipv6_address %}
-<connection>
-proto udp6
-remote {{ external_ipv6_address }} 53 udp
-</connection>
-{% endif %}

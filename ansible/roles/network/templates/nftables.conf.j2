@@ -6,7 +6,8 @@ table ip nat {
 
 	chain postrouting_filter {
 		type nat hook postrouting priority filter; policy accept;
-		oif "{{ ansible_facts['default_ipv4']['interface'] }}" ip saddr {{ masquerade_ipv4_network }}/{{ masquerade_ipv4_prefix }} masquerade
+		oif "{{ ansible_facts['default_ipv4']['interface'] }}" ip saddr {{ network_openvpn_ipv4_address }}/{{ network_ipv4_prefix_len }} masquerade
+		oif "{{ ansible_facts['default_ipv4']['interface'] }}" ip saddr {{ network_wireguard_ipv4_address }}/{{ network_ipv4_prefix_len }} masquerade
 	}
 }
 {% if external_ipv6_address %}
@@ -17,7 +18,8 @@ table ip6 nat {
 
 	chain postrouting_filter {
 		type nat hook postrouting priority filter; policy accept;
-		oif "{{ ansible_facts['default_ipv6']['interface'] }}" ip6 saddr {{ network_ipv6_ula_network }} masquerade
+		oif "{{ ansible_facts['default_ipv6']['interface'] }}" ip6 saddr {{ network_openvpn_ipv6_ula_network }} masquerade
+		oif "{{ ansible_facts['default_ipv6']['interface'] }}" ip6 saddr {{ network_wireguard_ipv6_ula_network }} masquerade
 	}
 }
 {% endif %}

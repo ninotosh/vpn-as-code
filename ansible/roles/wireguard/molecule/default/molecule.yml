@@ -1,0 +1,39 @@
+---
+dependency:
+  name: galaxy
+  options:
+    ignore-certs: false
+    ignore-errors: false
+    role-file: requirements.yml
+    requirements-file: requirements.yml
+driver:
+  name: docker
+platforms:
+  - name: instance0
+  - name: instance1
+ansible:
+  cfg:
+    defaults:
+      host_key_checking: false
+      verbosity: 1
+  env:
+    ANSIBLE_FORCE_COLOR: "1"
+    ANSIBLE_LOAD_CALLBACK_PLUGINS: "1"
+    CONFIG: files/config.yml
+    TERRAFORM_OUTPUT_PATH: ${MOLECULE_TFOUT_PATH:-files/tfout.json}
+    ANSIBLE_ROLES_PATH: ../../../ # https://github.com/ansible/molecule/issues/4391
+
+  executor:
+    backend: ansible-playbook
+    args:
+      ansible_playbook:
+        - --diff
+        - --force-handlers
+        - --inventory=../../../../inventory.sh
+        - --extra-vars=download_dir=/tmp/download
+      ansible_navigator:
+        - --mode stdout
+        - --pull-policy missing
+        - --execution-environment-image ghcr.io/ansible/community-ansible-dev-tools:latest
+
+role_name_check: 1

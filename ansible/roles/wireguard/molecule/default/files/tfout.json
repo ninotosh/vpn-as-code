@@ -1,0 +1,18 @@
+{
+  "aws": {
+    "value": {
+      "instance0": {
+        "ipv4_address": "instance0",
+        "ipv6_address": "fe80::fff0"
+      }
+    }
+  },
+  "gc": {
+    "value": {
+      "instance1": {
+        "ipv4_address": "instance1",
+        "ipv6_address": null
+      }
+    }
+  }
+}

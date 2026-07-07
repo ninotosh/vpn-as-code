@@ -18,8 +18,9 @@ google_cloud?: close({
 		bundle_id:         =~"^[a-z0-9]+(_[a-z0-9]+)+$"
 	}
 }
+#application: "openvpn" | "wireguard"
 #server: {
-	applications: ["openvpn"]
+	applications: [#application, ...#application]
 	clients: [...#client]
 }
 #aws_server: {

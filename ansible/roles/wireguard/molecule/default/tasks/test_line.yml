@@ -1,0 +1,7 @@
+- name: Test line
+  ansible.builtin.find:
+    paths: "{{ path | dirname }}"
+    patterns: "{{ path | basename }}"
+    contains: "{{ line }}"
+  register: _wireguard_find
+  failed_when: _wireguard_find.matched != matched

@@ -25,6 +25,12 @@
     system_instantiation_time: "{{ _network_journalctl_list_boots.stdout if _network_which_journalctl is succeeded else _network_stat_proc_1.stdout }}"
     ipv6_ula_global_id: "{{ ((system_instantiation_time | string + ansible_facts['default_ipv6']['macaddress']) | hash('sha1'))[-10:] }}"
     ipv6_ula_global_network: "{{ ('fd' + ipv6_ula_global_id) | batch(4) | map('join') | join(':') }}"
-    ipv6_ula_subnet_id: "{{ (inventory_hostname | hash('sha1'))[-4:] }}"
+    ipv6_ula_subnet_id: "{{ (inventory_hostname | hash('sha1'))[-4:] }}" # e.g. 123f
+    last_incremented_dec: "{{ ipv6_ula_subnet_id[-1] | int(base=16) + 1 }}" # e.g. 16
+    last_hex: "{{ ('%x' % last_incremented_dec | int)[-1] }}" # e.g. 0
+    next_subnet_id: "{{ ipv6_ula_subnet_id[:-1] + last_hex | string }}" # e.g. 1230
+    _network_ipv6_prefix_len: 64
   ansible.builtin.set_fact:
-    network_ipv6_ula_network: "{{ ipv6_ula_global_network }}:{{ ipv6_ula_subnet_id }}::/64"
+    network_ipv6_prefix_len: "{{ _network_ipv6_prefix_len }}"
+    network_openvpn_ipv6_ula_network: "{{ ipv6_ula_global_network }}:{{ ipv6_ula_subnet_id }}::/{{ _network_ipv6_prefix_len }}"
+    network_wireguard_ipv6_ula_network: "{{ ipv6_ula_global_network }}:{{ next_subnet_id }}::/{{ _network_ipv6_prefix_len }}"

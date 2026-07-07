@@ -1,0 +1,19 @@
+[Interface]
+PrivateKey = {{ client.private_key }}
+MTU = 1380
+{% if client.cidr_ipv6 | length > 0 %}
+Address = {{ client.cidr_ipv6 }}
+DNS = 2606:4700:4700::1111, 2001:4860:4860::8888
+{% endif %}
+Address = {{ client.cidr_ipv4 }}
+DNS = 1.1.1.1, 8.8.8.8
+
+[Peer]
+PublicKey = {{ wireguard_server.public_key }}
+PresharedKey = {{ client.preshared_key }}
+{% if network_wireguard_ipv6_ula_network is defined and network_wireguard_ipv6_ula_network | length > 0 %}
+Endpoint = {{ wireguard_server.endpoint_ipv6 }}
+AllowedIPs = ::/0
+{% endif %}
+Endpoint = {{ wireguard_server.endpoint_ipv4 }}
+AllowedIPs = 0.0.0.0/0

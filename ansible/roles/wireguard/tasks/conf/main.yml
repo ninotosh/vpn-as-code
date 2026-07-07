@@ -1,0 +1,19 @@
+- name: Create a key directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ wireguard_key_dir }}"
+    mode: u=rwx,g=,o=
+
+- name: Import key/server tasks
+  ansible.builtin.import_tasks: key/server.yml
+
+- name: Include key/client tasks
+  ansible.builtin.include_tasks: key/client.yml
+  loop: "{{ clients }}"
+  loop_control:
+    index_var: client_index
+  vars:
+    client_name: "{{ item }}"
+
+- name: Import save tasks
+  ansible.builtin.import_tasks: save.yml
