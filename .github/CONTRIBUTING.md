@@ -75,10 +75,11 @@ docker cp /path/to/ssh_private_key molecule-bash:/root/ssh_key
 
 #### run `ansible-playbook`
 
-In the `molecule-bash` container, run `ansible-playbook` as in [ansible.yml](/.github/workflows/ansible.yml)
+In the `molecule-bash` container, install the Ansible collections and run `ansible-playbook` as in [ansible.yml](/.github/workflows/ansible.yml)
 
 > [!TIP]  
 > All the necessary environment variables are already set in the container.
+> Change `CONFIG` to use a configuration file other than the default.
 
 > [!TIP]  
 > to log in to the server with `ssh`, run `ssh -i ${SSH_PRIVATE_KEY_PATH} -l ubuntu __put_server_ip_address_here__`
@@ -96,7 +97,7 @@ On the host,
 docker cp molecule-bash:/tmp/download .
 ```
 
-Edit the `ovpn` file if necessary, and establish a VPN connection.
+Edit a configuration file if necessary, and establish a VPN connection.
 
 
 ## without external servers
@@ -115,30 +116,29 @@ docker compose -f docker/compose.yaml run --rm --name molecule-bash molecule-bas
 
 In the container,
 
-1. `cd roles/openvpn`
+1. `cd roles/openvpn` or `cd roles/wireguard`
 1. `molecule test --all`
 
 #### test connectivity
 
 In the container,
 
-1. `cd roles/openvpn`
+1. `cd roles/openvpn` or `cd roles/wireguard`
 1. `molecule converge`
-1. `cp /tmp/download/instance0/client0.ovpn /mnt/ansible`
 
 On the host,
 
-1. in `ansible/client0.ovpn`, delete `<connection>...</connection>` except one,
-and change the host and the port as follows.
+1. `docker cp molecule-bash:/tmp/download .`
+2. for OpenVPN, delete `<connection>...</connection>` except one in `download/instance0/client0.ovpn`, and change the host and the port as follows.
 
 | |before|after|
 |---|---|---|
 |host|`fe80::fff0`|_see below_|
 |host|`instance0`|`127.0.0.1`|
-|port|`53`|`5300`|
 |port|`443`|`4430`|
 
 A new IPv6 address can be
+- the loopback address: `::1` or `::1%lo0`
 - a link-local address such as `fe80::1` and `fe80::1%lo0`
 - one of the addresses returned from
 `docker inspect -f '{{range .NetworkSettings.Networks}}{{.GlobalIPv6Address}}{{end}}' instance0`
@@ -146,7 +146,7 @@ A new IPv6 address can be
 > [!NOTE]  
 > The port forwarding for IPv6 + UDP may not work with Docker Desktop for Mac.
 
-2. establish a VPN connection using the new `ovpn` file
+3. establish a VPN connection using the `.ovpn` file for OpenVPN or a `.conf` file for WireGuard
 
 > [!NOTE]  
 > This is only for testing connectivity from the host as a client to the container as a server.
@@ -164,11 +164,12 @@ To run Molecule tests,
 1. open a pull request
 1. comment as follows
 
-| comment | `certificate` role | `openvpn` role |
-|---:|:---:|:---:|
-| `/molecule all` | ✅ | ✅ |
-| `/molecule certificate` | ✅ | ❌ |
-| `/molecule openvpn` | ❌ | ✅ |
+| comment | `certificate` role | `openvpn` role | `wireguard` role |
+|---:|:---:|:---:|:---:|
+| `/molecule all` | ✅ | ✅ | ✅ |
+| `/molecule certificate` | ✅ | ❌ | ❌ |
+| `/molecule openvpn` | ❌ | ✅ | ❌ |
+| `/molecule wireguard` | ❌ | ❌ | ✅ |
 
 
 ## integration tests

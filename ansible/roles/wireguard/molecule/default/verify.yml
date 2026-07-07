@@ -1,0 +1,25 @@
+---
+- name: Verify
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: test stat
+      ansible.builtin.include_tasks: tasks/test_stat.yml
+      loop:
+        - {path: "/tmp/download/instance0/client0.conf"}
+        - {path: "/tmp/download/instance0/client1.conf"}
+        - {path: "/tmp/download/instance1/client1.conf"}
+      vars:
+        path: "{{ item.path }}"
+
+    - name: test address
+      ansible.builtin.include_tasks: tasks/test_line.yml
+      loop:
+        - {path: "/tmp/download/instance0/client0.conf", line: "^Address = 10.8.1.2/24$", matched: 1}
+        - {path: "/tmp/download/instance0/client1.conf", line: "^Address = 10.8.1.3/24$", matched: 1}
+        - {path: "/tmp/download/instance1/client1.conf", line: "^Address = 10.8.1.2/24$", matched: 1}
+        - {path: "/tmp/download/instance1/client1.conf", line: "^Address = fd.*$", matched: 0}
+      vars:
+        path: "{{ item.path }}"
+        line: "{{ item.line }}"
+        matched: "{{ item.matched }}"

@@ -1,0 +1,13 @@
+- name: Prepare a fetch dest directory
+  delegate_to: localhost
+  become: false
+  ansible.builtin.file:
+    state: directory
+    path: "{{ fetch_dest_dir }}"
+    mode: u=rwx,g=,o=
+
+- name: Include download tasks
+  ansible.builtin.include_tasks: download.yml
+  loop: "{{ clients }}"
+  vars:
+    client_name: "{{ item }}"

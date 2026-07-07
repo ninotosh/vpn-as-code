@@ -1,0 +1,21 @@
+- name: Assert systemd
+  ansible.builtin.assert:
+    that: ansible_facts['service_mgr'] == 'systemd'
+
+- name: Change the symbolic link
+  ansible.builtin.file:
+    state: link
+    force: true
+    src: ../run/systemd/resolve/resolv.conf
+    path: /etc/resolv.conf
+
+- name: Edit resolved.conf
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/resolved.conf
+    regexp: '^DNSStubListener='
+    line: DNSStubListener=no
+
+- name: Restart resolved
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted # reload unsupported

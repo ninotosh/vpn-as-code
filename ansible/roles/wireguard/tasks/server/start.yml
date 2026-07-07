@@ -1,0 +1,17 @@
+- name: Check for the interface
+  ansible.builtin.command:
+    cmd: wg show wg0
+  register: _wireguard_wg_show_result
+  changed_when: false
+  ignore_errors: true
+
+- name: Create an interface
+  when: _wireguard_wg_show_result is failed
+  ansible.builtin.command:
+    cmd: wg-quick up wg0
+
+- name: Update the interface
+  when: _wireguard_wg_show_result is succeeded
+  ansible.builtin.shell:
+    cmd: wg-quick strip wg0 | wg syncconf wg0 /dev/stdin
+  changed_when: false

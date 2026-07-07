@@ -1,0 +1,9 @@
+- name: Get status
+  ansible.builtin.stat:
+    path: "{{ path }}"
+  register: _wireguard_stat
+
+- name: Assert permission
+  ansible.builtin.assert:
+    that:
+      - _wireguard_stat.stat.mode == "0600"

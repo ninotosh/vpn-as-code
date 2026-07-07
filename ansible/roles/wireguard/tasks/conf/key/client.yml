@@ -1,0 +1,47 @@
+- name: Generate client keys
+  ansible.builtin.import_tasks: generate.yml
+  vars:
+    node: "{{ client_name }}"
+    generate_psk: true
+
+- name: Get the public key
+  ansible.builtin.command: cat {{ wireguard_key_dir }}/{{ client_name }}.pub
+  register: _wireguard_client_public_key
+  changed_when: false
+
+- name: Get the private key
+  ansible.builtin.command: cat {{ wireguard_key_dir }}/{{ client_name }}.key
+  no_log: true
+  register: _wireguard_client_private_key
+  changed_when: false
+
+- name: Get the preshared key
+  ansible.builtin.command: cat {{ wireguard_key_dir }}/{{ client_name }}.psk
+  no_log: true
+  register: _wireguard_client_preshared_key
+  changed_when: false
+
+- name: Set peers dict
+  vars:
+    host_ipv4: "{{ network_wireguard_ipv4_address | ansible.utils.ipmath(client_index + 2) }}"
+    cidr_ipv4: "{{ host_ipv4 }}/{{ network_ipv4_prefix_len }}"
+    is_ipv6_enabled: "{{ network_wireguard_ipv6_ula_network is defined and network_wireguard_ipv6_ula_network | length > 0 }}"
+    host_ipv6: "{{ network_wireguard_ipv6_ula_network | ansible.utils.ipmath(client_index + 2) if is_ipv6_enabled else '' }}"
+    cidr_ipv6: "{{ host_ipv6 + '/' + network_ipv6_prefix_len | string if is_ipv6_enabled else '' }}"
+  ansible.builtin.set_fact:
+    wireguard_peers: >
+      {{
+        wireguard_peers
+        | default({})
+        | ansible.builtin.combine({
+            client_name: {
+              'public_key': _wireguard_client_public_key.stdout,
+              'private_key': _wireguard_client_private_key.stdout,
+              'preshared_key': _wireguard_client_preshared_key.stdout,
+              'ipv4_address': host_ipv4,
+              'cidr_ipv4': cidr_ipv4,
+              'ipv6_address': host_ipv6,
+              'cidr_ipv6': cidr_ipv6
+            }
+          })
+      }}

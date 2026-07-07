@@ -63,12 +63,10 @@ sequenceDiagram
 
 - Ubuntu 24.04 <!-- renovate -->
 
-## VPN application
+## VPN applications
 
-- OpenVPN
-
-> [!NOTE]  
-> WireGuard is planned
+- OpenVPN (TCP only)
+- WireGuard (UDP only)
 
 ## protocols
 

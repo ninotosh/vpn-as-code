@@ -42,5 +42,5 @@ jobs:
       - name: terraform plan
         run: |
           echo '```' >> $GITHUB_STEP_SUMMARY
-          terraform plan -no-color >> $GITHUB_STEP_SUMMARY
+          terraform plan -no-color | tee -a $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY

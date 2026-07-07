@@ -1,0 +1,17 @@
+- name: Stop the stub listener
+  when: ansible_facts['service_mgr'] == 'systemd'
+  ansible.builtin.import_tasks: server/resolved.yml
+
+- name: Import server install tasks
+  ansible.builtin.import_tasks: server/install.yml
+
+- name: Create conf files
+  ansible.builtin.import_tasks: conf/main.yml
+
+- name: Import server start tasks
+  ansible.builtin.import_tasks: server/start.yml
+
+- name: Import client tasks
+  ansible.builtin.import_tasks: client/main.yml
+  vars:
+    fetch_dest_dir: "{{ download_dir }}/{{ inventory_hostname }}"

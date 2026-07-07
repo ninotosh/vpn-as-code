@@ -5,7 +5,7 @@ terraform_cloud:
 google_cloud:
   project_id: my-project-147248
 servers:
-  blue:
+  instance0:
     provider: aws
     aws:
       region: us-west-2
@@ -13,28 +13,25 @@ servers:
       lightsail:
         availability_zone: b
         blueprint_id: ubuntu_24_04 # renovate
-        bundle_id: nano_3_0
+        bundle_id: nano_ipv6_3_0
     applications:
-      - openvpn
       - wireguard
     clients:
       - client0
       - client1
-  green:
+  instance1:
     provider: gc
     gc:
       compute: gce
       gce:
         region: us-west1
-        zone: a
+        zone: b
         machine_type: e2-micro
         image:
           project: ubuntu-os-cloud
           family: ubuntu-2404-lts-amd64 # renovate
-        enable_ipv6: true
+        enable_ipv6: false
     applications:
-      - openvpn
       - wireguard
     clients:
-      - client0
       - client1

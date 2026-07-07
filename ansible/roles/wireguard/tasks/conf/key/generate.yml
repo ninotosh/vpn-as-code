@@ -1,0 +1,17 @@
+- name: Generate a key pair
+  # no need to revert umask
+  ansible.builtin.shell:
+    cmd: >
+      umask 077 &&
+      wg genkey | tee {{ node }}.key | wg pubkey | tee {{ node }}.pub
+    chdir: "{{ wireguard_key_dir }}"
+    creates: "{{ wireguard_key_dir }}/{{ node }}.pub"
+
+- name: Generate a preshared key
+  when: generate_psk | default(false) | bool
+  ansible.builtin.shell:
+    cmd: >
+      umask 077 &&
+      wg genpsk > {{ node }}.psk
+    chdir: "{{ wireguard_key_dir }}"
+    creates: "{{ wireguard_key_dir }}/{{ node }}.psk"

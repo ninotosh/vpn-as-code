@@ -1,0 +1,4 @@
+network_ipv4_prefix_len: 24
+network_ipv4_netmask: 255.255.255.0
+network_openvpn_ipv4_address: 10.8.0.0
+network_wireguard_ipv4_address: 10.8.1.0

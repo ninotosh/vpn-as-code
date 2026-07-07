@@ -22,7 +22,7 @@ jobs:
   ansible-lint:
     needs: yamllint
     runs-on: ubuntu-24.04
-    timeout-minutes: 1
+    timeout-minutes: 2
     defaults:
       run:
         working-directory: ansible
@@ -34,5 +34,8 @@ jobs:
         run: |
           python3 -m pip install ansible-lint
           ansible-galaxy collection install -r roles/network/requirements.yml
+          ansible-galaxy collection install -r roles/wireguard/requirements.yml
+          ansible-galaxy collection install -r roles/openvpn/molecule/default/collections.yml
+          ansible-galaxy collection install -r roles/wireguard/molecule/default/collections.yml
 
       - run: ansible-lint
