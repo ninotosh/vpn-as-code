@@ -6,7 +6,15 @@
         "customManagers:githubActionsVersions"
     ],
     "minimumReleaseAge": "5 days",
+    "separateMinorPatch": true, // to ignore patch-only updates
     "packageRules": [
+        {
+            "description": "ignore patch-only updates (not applicable to SHA digests)",
+            "matchUpdateTypes": [
+                "patch"
+            ],
+            "enabled": false
+        },
         {
             "description": "stop renovate from taking a context name as an image name or a stage name",
             "matchFileNames": [
