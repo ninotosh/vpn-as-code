@@ -12,5 +12,5 @@
   ansible.builtin.include_tasks: systemd.yml
 
 - name: run server with sysvinit
-  when: ansible_facts['service_mgr'] == 'sysvinit'
+  when: ansible_facts['service_mgr'] != 'systemd'
   ansible.builtin.include_tasks: sysvinit.yml
