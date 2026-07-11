@@ -3,19 +3,15 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: Set container external ports
-      loop: "{{ groups['ungrouped'] }}"
-      loop_control:
-        loop_var: _container_name
-        index_var: _container_index
+    - name: Set container external port
       ansible.builtin.set_fact:
-        container_external_ports: >
+        container_external_port: >-
           {{
-            container_external_ports
-            | default({})
-            | ansible.builtin.combine({
-                _container_name: 5300 + _container_index
-              })
+            (
+              molecule_yml.platforms
+              | selectattr('name', 'equalto', ansible_host)
+              | first
+            ).external_port
           }}
 
     - name: Install python3
