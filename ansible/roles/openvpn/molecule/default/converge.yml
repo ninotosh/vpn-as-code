@@ -1,7 +1,26 @@
 ---
 - name: Converge
   hosts: all
+  gather_facts: false
   tasks:
-    - name: "Include openvpn"
+    - name: Set container external port
+      ansible.builtin.set_fact:
+        container_external_port: >-
+          {{
+            (
+              molecule_yml.platforms
+              | selectattr('name', 'equalto', ansible_host)
+              | first
+            ).external_port
+          }}
+
+    - name: Install python3
+      ansible.builtin.raw: >
+        apt-get update &&
+        apt-get install -y --no-install-recommends python3
+      register: _openvpn_install_python3
+      changed_when: "' 0 newly installed' not in _openvpn_install_python3.stdout"
+
+    - name: Apply role under test
       ansible.builtin.include_role:
-        name: "openvpn"
+        name: openvpn

@@ -1,0 +1,25 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Create test containers
+      loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        loop_var: _platform
+      community.docker.docker_container:
+        name: "{{ _platform.name }}"
+        image: ubuntu:24.04 # renovate
+        capabilities:
+          - NET_ADMIN
+        command: sleep inf
+        default_host_ip: ''
+        state: started
+        devices:
+          - /dev/net/tun
+        published_ports:
+          - "{{ _platform.external_port }}:443"
+        sysctls: # enable these parameters to be modified in the container
+          net.ipv6.conf.all.disable_ipv6: 0
+          net.ipv6.conf.all.forwarding: 1

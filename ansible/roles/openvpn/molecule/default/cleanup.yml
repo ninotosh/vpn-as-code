@@ -1,8 +1,9 @@
 ---
 - name: Cleanup
   hosts: localhost
+  gather_facts: false
   tasks:
-    - name: delete download directory
+    - name: Delete download directory
       ansible.builtin.file:
         path: /tmp/download
         state: absent

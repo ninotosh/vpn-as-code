@@ -1,0 +1,9 @@
+- name: Get status
+  ansible.builtin.stat:
+    path: "{{ path }}"
+  register: _openvpn_stat
+
+- name: Assert permission
+  ansible.builtin.assert:
+    that:
+      - _openvpn_stat.stat.mode == mode
