@@ -28,7 +28,7 @@
     host_ipv6: "{{ network_wireguard_ipv6_ula_network | ansible.utils.ipmath(1) if is_ipv6_enabled else '' }}"
     cidr_ipv6: "{{ host_ipv6 + '/' + network_ipv6_prefix_len | string if is_ipv6_enabled else '' }}"
     is_dev_container: "{{ ansible_facts['virtualization_type'] == 'docker' }}"
-    external_port: "{{ container_external_ports[ansible_host] if is_dev_container else 53 }}"
+    external_port: "{{ container_external_port if is_dev_container else 53 }}"
     endpoint_address_ipv4: "{{ '127.0.0.1' if is_dev_container else ansible_host }}"
     endpoint_ipv4: "{{ endpoint_address_ipv4 }}:{{ external_port }}"
     endpoint_address_ipv6: "{{ '::1' if is_dev_container else external_ipv6_address }}"
@@ -36,15 +36,13 @@
   ansible.builtin.set_fact:
     wireguard_server: >
       {{
-        wireguard_server
-        | default({})
-        | ansible.builtin.combine({
-            'public_key': _wireguard_server_public_key.stdout,
-            'private_key': _wireguard_server_private_key.stdout,
-            'internal_ipv4_address': host_ipv4,
-            'cidr_ipv4': cidr_ipv4,
-            'cidr_ipv6': cidr_ipv6,
-            'endpoint_ipv4': endpoint_ipv4,
-            'endpoint_ipv6': endpoint_ipv6
-          })
+        {
+          'public_key': _wireguard_server_public_key.stdout,
+          'private_key': _wireguard_server_private_key.stdout,
+          'internal_ipv4_address': host_ipv4,
+          'cidr_ipv4': cidr_ipv4,
+          'cidr_ipv6': cidr_ipv6,
+          'endpoint_ipv4': endpoint_ipv4,
+          'endpoint_ipv6': endpoint_ipv6
+        }
       }}

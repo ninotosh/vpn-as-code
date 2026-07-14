@@ -43,6 +43,11 @@
       ansible.builtin.apt:
         name: openvpn
 
+    - name: Gather memory size
+      ansible.builtin.setup:
+        gather_subset:
+          - hardware
+
     - name: install openvpn-dco-dkms
       ansible.builtin.apt:
         name: openvpn-dco-dkms

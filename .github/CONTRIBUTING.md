@@ -129,24 +129,7 @@ In the container,
 On the host,
 
 1. `docker cp molecule-bash:/tmp/download .`
-2. for OpenVPN, delete `<connection>...</connection>` except one in `download/instance0/client0.ovpn`, and change the host and the port as follows.
-
-| |before|after|
-|---|---|---|
-|host|`fe80::fff0`|_see below_|
-|host|`instance0`|`127.0.0.1`|
-|port|`443`|`4430`|
-
-A new IPv6 address can be
-- the loopback address: `::1` or `::1%lo0`
-- a link-local address such as `fe80::1` and `fe80::1%lo0`
-- one of the addresses returned from
-`docker inspect -f '{{range .NetworkSettings.Networks}}{{.GlobalIPv6Address}}{{end}}' instance0`
-
-> [!NOTE]  
-> The port forwarding for IPv6 + UDP may not work with Docker Desktop for Mac.
-
-3. establish a VPN connection using the `.ovpn` file for OpenVPN or a `.conf` file for WireGuard
+2. establish a VPN connection using the `.ovpn` file for OpenVPN or a `.conf` file for WireGuard
 
 > [!NOTE]  
 > This is only for testing connectivity from the host as a client to the container as a server.

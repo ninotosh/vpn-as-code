@@ -16,8 +16,10 @@
         command: sleep inf
         default_host_ip: ''
         state: started
+        devices:
+          - /dev/net/tun
         published_ports:
-          - "{{ _platform.external_port }}:53/udp" # 0.0.0.0 and [::]
+          - "{{ _platform.external_port }}:443"
         sysctls: # enable these parameters to be modified in the container
           net.ipv6.conf.all.disable_ipv6: 0
           net.ipv6.conf.all.forwarding: 1

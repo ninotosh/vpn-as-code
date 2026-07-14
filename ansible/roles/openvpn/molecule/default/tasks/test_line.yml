@@ -1,11 +1,11 @@
-- name: Test line
+- name: Find line
   ansible.builtin.find:
     paths: "{{ path | dirname }}"
     patterns: "{{ path | basename }}"
     contains: "{{ line }}"
-  register: _wireguard_find
+  register: _openvpn_find
 
 - name: Assert match
   ansible.builtin.assert:
     that:
-      - _wireguard_find.matched == matched
+      - _openvpn_find.matched == matched

@@ -1,9 +1,9 @@
 - name: Get status
   ansible.builtin.stat:
     path: "{{ path }}"
-  register: _wireguard_stat
+  register: _openvpn_stat
 
 - name: Assert permission
   ansible.builtin.assert:
     that:
-      - _wireguard_stat.stat.mode == mode
+      - _openvpn_stat.stat.mode == mode

@@ -6,11 +6,12 @@
     - name: test stat
       ansible.builtin.include_tasks: tasks/test_stat.yml
       loop:
-        - {path: "/tmp/download/instance0/client0.conf"}
-        - {path: "/tmp/download/instance0/client1.conf"}
-        - {path: "/tmp/download/instance1/client1.conf"}
+        - {path: "/tmp/download/instance0/client0.conf", mode: "0600"}
+        - {path: "/tmp/download/instance0/client1.conf", mode: "0600"}
+        - {path: "/tmp/download/instance1/client1.conf", mode: "0600"}
       vars:
         path: "{{ item.path }}"
+        mode: "{{ item.mode }}"
 
     - name: test address
       ansible.builtin.include_tasks: tasks/test_line.yml

@@ -10,7 +10,9 @@ driver:
   name: docker
 platforms:
   - name: instance0
+    external_port: 5300
   - name: instance1
+    external_port: 5301
 ansible:
   cfg:
     defaults:

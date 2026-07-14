@@ -1,6 +1,16 @@
+- name: Gather virtualization_type facts
+  ansible.builtin.setup:
+    gather_subset:
+      - virtualization_type
+
 - name: create ovpn file
   delegate_to: localhost
   become: false
+  vars:
+    is_dev_container: "{{ ansible_facts['virtualization_type'] == 'docker' }}"
+    endpoint_address_ipv4: "{{ '127.0.0.1' if is_dev_container else ansible_host }}"
+    endpoint_address_ipv6: "{{ '::1' if is_dev_container else external_ipv6_address }}"
+    endpoint_port: "{{ container_external_port if is_dev_container else 443 }}"
   ansible.builtin.template:
     src: client.ovpn.j2
     dest: "{{ fetch_dest_dir }}/{{ client_name }}.ovpn"

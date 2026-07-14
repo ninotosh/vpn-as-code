@@ -3,12 +3,24 @@
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: check files
+    - name: Test status
+      ansible.builtin.include_tasks: tasks/test_stat.yml
       loop:
-        - { path: "/tmp/download/instance0/client0.ovpn", mode: "0600" }
-        - { path: "/tmp/download/instance0/client1.ovpn", mode: "0600" }
-        - { path: "/tmp/download/instance1/client1.ovpn", mode: "0600" }
-      ansible.builtin.include_tasks: tasks/assert_stat.yml
+        - {path: "/tmp/download/instance0/client0.ovpn", mode: "0600"}
+        - {path: "/tmp/download/instance0/client1.ovpn", mode: "0600"}
+        - {path: "/tmp/download/instance1/client1.ovpn", mode: "0600"}
       vars:
         path: "{{ item.path }}"
         mode: "{{ item.mode }}"
+
+    - name: Test remote
+      ansible.builtin.include_tasks: tasks/test_line.yml
+      loop:
+        - {path: "/tmp/download/instance0/client0.ovpn", line: "^remote 127.0.0.1 4430 tcp$", matched: 1}
+        - {path: "/tmp/download/instance0/client1.ovpn", line: "^remote 127.0.0.1 4430 tcp$", matched: 1}
+        - {path: "/tmp/download/instance1/client1.ovpn", line: "^remote 127.0.0.1 4431 tcp$", matched: 1}
+        - {path: "/tmp/download/instance1/client1.ovpn", line: "::1", matched: 0}
+      vars:
+        path: "{{ item.path }}"
+        line: "{{ item.line }}"
+        matched: "{{ item.matched }}"
