@@ -6,4 +6,4 @@
 - name: Assert permission
   ansible.builtin.assert:
     that:
-      - _wireguard_stat.stat.mode == "0600"
+      - _wireguard_stat.stat.mode == mode

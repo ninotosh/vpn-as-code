@@ -36,15 +36,13 @@
   ansible.builtin.set_fact:
     wireguard_server: >
       {{
-        wireguard_server
-        | default({})
-        | ansible.builtin.combine({
-            'public_key': _wireguard_server_public_key.stdout,
-            'private_key': _wireguard_server_private_key.stdout,
-            'internal_ipv4_address': host_ipv4,
-            'cidr_ipv4': cidr_ipv4,
-            'cidr_ipv6': cidr_ipv6,
-            'endpoint_ipv4': endpoint_ipv4,
-            'endpoint_ipv6': endpoint_ipv6
-          })
+        {
+          'public_key': _wireguard_server_public_key.stdout,
+          'private_key': _wireguard_server_private_key.stdout,
+          'internal_ipv4_address': host_ipv4,
+          'cidr_ipv4': cidr_ipv4,
+          'cidr_ipv6': cidr_ipv6,
+          'endpoint_ipv4': endpoint_ipv4,
+          'endpoint_ipv6': endpoint_ipv6
+        }
       }}

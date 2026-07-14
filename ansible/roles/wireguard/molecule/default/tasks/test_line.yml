@@ -4,4 +4,8 @@
     patterns: "{{ path | basename }}"
     contains: "{{ line }}"
   register: _wireguard_find
-  failed_when: _wireguard_find.matched != matched
+
+- name: Assert match
+  ansible.builtin.assert:
+    that:
+      - _wireguard_find.matched == matched
