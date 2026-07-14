@@ -20,11 +20,11 @@ connect-retry 3
 {% if external_ipv6_address %}
 <connection>
 proto tcp6-client
-remote {{ external_ipv6_address }} 443 tcp
+remote {{ endpoint_address_ipv6 }} {{ endpoint_port }} tcp
 </connection>
 {% endif %}
 
 <connection>
 proto tcp4-client
-remote {{ ansible_host }} 443 tcp
+remote {{ endpoint_address_ipv4 }} {{ endpoint_port }} tcp
 </connection>
