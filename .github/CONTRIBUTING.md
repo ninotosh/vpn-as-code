@@ -147,12 +147,11 @@ To run Molecule tests,
 1. open a pull request
 1. comment as follows
 
-| comment | `certificate` role | `openvpn` role | `wireguard` role |
-|---:|:---:|:---:|:---:|
-| `/molecule all` | ✅ | ✅ | ✅ |
-| `/molecule certificate` | ✅ | ❌ | ❌ |
-| `/molecule openvpn` | ❌ | ✅ | ❌ |
-| `/molecule wireguard` | ❌ | ❌ | ✅ |
+| ↓comment | `openvpn` role | `wireguard` role |
+|---:|:---:|:---:|
+| `/molecule all` | ✅ | ✅ |
+| `/molecule openvpn` | ✅ | ❌ |
+| `/molecule wireguard` | ❌ | ✅ |
 
 
 ## integration tests

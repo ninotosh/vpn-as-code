@@ -4,9 +4,8 @@
 - name: import tls_crypt_v2 tasks
   ansible.builtin.import_tasks: tls_crypt_v2.yml
 
-- name: import certificate role
-  ansible.builtin.import_role:
-    name: certificate
+- name: import certificate tasks
+  ansible.builtin.import_tasks: "{{ role_path }}/tasks/certificate/main.yml"
   vars:
     subject_name: "{{ inventory_hostname }}"
     private_key_path: "{{ openvpn_server_key }}"
