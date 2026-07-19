@@ -5,11 +5,11 @@
   gather_facts: false
   tasks:
     - name: Create test containers
-      loop: "{{ molecule_yml.platforms }}"
+      loop: "{{ groups['all'] }}"
       loop_control:
-        loop_var: _platform
+        loop_var: _container_name
       community.docker.docker_container:
-        name: "{{ _platform.name }}"
+        name: "{{ _container_name }}"
         image: ubuntu:24.04 # renovate
         capabilities:
           - NET_ADMIN
@@ -17,7 +17,7 @@
         default_host_ip: ''
         state: started
         published_ports:
-          - "{{ _platform.external_port }}:53/udp" # 0.0.0.0 and [::]
+          - "{{ hostvars[_container_name]['external_port'] }}:53/udp" # 0.0.0.0 and [::]
         sysctls: # enable these parameters to be modified in the container
           net.ipv6.conf.all.disable_ipv6: 0
           net.ipv6.conf.all.forwarding: 1

@@ -8,9 +8,15 @@ driver:
   name: docker
 platforms:
   - name: instance0
-    external_port: 4430
   - name: instance1
-    external_port: 4431
+provisioner:
+  name: ansible
+  inventory: # add keys
+    host_vars:
+      instance0:
+        external_port: 4430
+      instance1:
+        external_port: 4431
 ansible:
   cfg:
     defaults:

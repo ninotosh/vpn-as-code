@@ -20,9 +20,8 @@
     server_fingerprint_local: "{{ fetch_dest_dir }}/server-fp.txt"
     openvpn_client_fingerprint_path: "{{ openvpn_client_fingerprint_path_format | format(client_name) }}"
   block:
-    - name: import certificate role
-      ansible.builtin.import_role:
-        name: certificate
+    - name: import certificate tasks
+      ansible.builtin.import_tasks: "{{ role_path }}/tasks/certificate/main.yml"
 
     - name: import tls_crypt_v2 tasks
       ansible.builtin.import_tasks: tls_crypt_v2.yml

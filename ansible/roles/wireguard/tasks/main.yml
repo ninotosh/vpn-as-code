@@ -1,5 +1,4 @@
 - name: Stop the stub listener
-  when: ansible_facts['service_mgr'] == 'systemd'
   ansible.builtin.import_tasks: server/resolved.yml
 
 - name: Import server install tasks

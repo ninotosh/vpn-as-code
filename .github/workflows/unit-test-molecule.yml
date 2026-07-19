@@ -14,7 +14,6 @@ jobs:
     timeout-minutes: 1
     outputs:
       check-id: ${{ steps.create-check.outputs.result }}
-      run-certificate: ${{ steps.targets.outputs.certificate }}
       run-openvpn: ${{ steps.targets.outputs.openvpn }}
       run-wireguard: ${{ steps.targets.outputs.wireguard }}
 
@@ -26,22 +25,14 @@ jobs:
           arg="${comment:${#command}}"
           case "${arg}" in
             all)
-              echo "certificate=true" >> $GITHUB_OUTPUT
               echo "openvpn=true" >> $GITHUB_OUTPUT
               echo "wireguard=true" >> $GITHUB_OUTPUT
               ;;
-            certificate)
-              echo "certificate=true" >> $GITHUB_OUTPUT
-              echo "openvpn=false" >> $GITHUB_OUTPUT
-              echo "wireguard=false" >> $GITHUB_OUTPUT
-              ;;
             openvpn)
-              echo "certificate=false" >> $GITHUB_OUTPUT
               echo "openvpn=true" >> $GITHUB_OUTPUT
               echo "wireguard=false" >> $GITHUB_OUTPUT
               ;;
             wireguard)
-              echo "certificate=false" >> $GITHUB_OUTPUT
               echo "openvpn=false" >> $GITHUB_OUTPUT
               echo "wireguard=true" >> $GITHUB_OUTPUT
               ;;
@@ -92,15 +83,9 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: install molecule
-        run: python3 -m pip install "ansible-core==${ANSIBLE_VERSION}" molecule "molecule-plugins[docker]"
-        env:
-          # renovate: custom-datasource=custom.github-ubuntu-ansible depName=ansible
-          ANSIBLE_VERSION: 2.21.0
-
-      - if: fromJSON(needs.start.outputs.run-certificate)
-        name: test roles/certificate
-        run: molecule test
-        working-directory: ansible/roles/certificate
+        run: |
+          pipx inject --include-apps ansible-core molecule
+          pipx inject ansible-core "molecule-plugins[docker]"
 
       - if: fromJSON(needs.start.outputs.run-openvpn)
         name: test roles/openvpn
@@ -111,7 +96,9 @@ jobs:
 
       - if: fromJSON(needs.start.outputs.run-wireguard)
         name: test roles/wireguard
-        run: molecule test
+        run: |
+          pipx inject ansible-core -r requirements.txt
+          molecule test
         env:
           MOLECULE_TFOUT_PATH: files/ipv4-only-tfout.json
         working-directory: ansible/roles/wireguard

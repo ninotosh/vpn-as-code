@@ -13,7 +13,7 @@
         cmd: >
           openssl req -x509
           -key "{{ private_key_path }}" -out "{{ certificate_pem }}"
-          -subj /CN"{{ '=' + subject_name }}" -nodes -days "{{ valid_days }}" -sha256
+          -subj /CN"{{ '=' + subject_name }}" -nodes -days 3650 -sha256
         creates: "{{ certificate_path }}"
 
     - name: decode certificate
