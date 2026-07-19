@@ -10,9 +10,15 @@ driver:
   name: docker
 platforms:
   - name: instance0
-    external_port: 5300
   - name: instance1
-    external_port: 5301
+provisioner:
+  name: ansible
+  inventory: # add keys
+    host_vars:
+      instance0:
+        external_port: 5300
+      instance1:
+        external_port: 5301
 ansible:
   cfg:
     defaults:

@@ -5,14 +5,7 @@
   tasks:
     - name: Set container external port
       ansible.builtin.set_fact:
-        container_external_port: >-
-          {{
-            (
-              molecule_yml.platforms
-              | selectattr('name', 'equalto', ansible_host)
-              | first
-            ).external_port
-          }}
+        container_external_port: "{{ hostvars[inventory_hostname]['external_port'] }}"
 
     - name: Install python3
       ansible.builtin.raw: >
